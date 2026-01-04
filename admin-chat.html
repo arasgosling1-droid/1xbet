@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>07 BET | Admin Canlı Destek</title>
+    <style>
+        body { background: #0b1622; color: #fff; font-family: sans-serif; display: flex; height: 100vh; margin: 0; }
+        #user-list { width: 300px; border-right: 1px solid #1b3d5d; overflow-y: auto; background: #070e16; }
+        .user-item { padding: 15px; border-bottom: 1px solid #1b3d5d; cursor: pointer; transition: 0.3s; }
+        .user-item:hover { background: #1b3d5d; }
+        .user-item.active { background: #2b567e; border-left: 5px solid #85b527; }
+        
+        #chat-area { flex: 1; display: flex; flex-direction: column; }
+        #chat-header { padding: 20px; background: #1b3d5d; font-weight: bold; border-bottom: 2px solid #85b527; }
+        #messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        #input-area { padding: 20px; background: #1b3d5d; display: flex; gap: 10px; }
+        
+        input { flex: 1; padding: 12px; border-radius: 5px; border: none; outline: none; }
+        button { background: #85b527; color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        
+        .msg-user { align-self: flex-start; background: #34495e; padding: 10px; border-radius: 10px; max-width: 70%; }
+        .msg-admin { align-self: flex-end; background: #85b527; color: #000; padding: 10px; border-radius: 10px; max-width: 70%; }
+    </style>
+</head>
+<body>
+
+<div id="user-list">
+    <div style="padding: 20px; border-bottom: 1px solid #1b3d5d; text-align: center; color: #85b527;"><b>AKTİF DESTEK</b></div>
+    <div id="users"></div>
+</div>
+
+<div id="chat-area">
+    <div id="chat-header">Mesajlaşmak için bir kullanıcı seçin</div>
+    <div id="messages"></div>
+    <div id="input-area">
+        <input type="text" id="admin-input" placeholder="Cevabınızı yazın...">
+        <button onclick="sendAdminMessage()">GÖNDER</button>
+    </div>
+</div>
+
+<script type="module">
+    import { db, ref, push, onValue } from "./firebase-handler.js";
+
+    let activeUserId = null;
+
+    // 1. MESAJLAŞAN TÜM KULLANICILARI LİSTELE
+    onValue(ref(db, 'messages'), (snapshot) => {
+        const usersDiv = document.getElementById('users');
+        usersDiv.innerHTML = "";
+        const data = snapshot.val();
+        
+        if (data) {
+            Object.keys(data).forEach(uid => {
+                const lastMsg = Object.values(data[uid]).pop();
+                usersDiv.innerHTML += `
+                    <div class="user-item" onclick="loadUserChat('${uid}')">
+                        <b>ID: ${uid}</b><br>
+                        <small style="color:#aaa;">${lastMsg.text.substring(0,20)}...</small>
+                    </div>`;
+            });
+        }
+    });
+
+    // 2. SEÇİLEN KULLANICININ MESAJLARINI YÜKLE
+    window.loadUserChat = (uid) => {
+        activeUserId = uid;
+        document.getElementById('chat-header').innerText = "Müşteri ID: " + uid;
+        
+        onValue(ref(db, `messages/${uid}`), (snapshot) => {
+            const msgDiv = document.getElementById('messages');
+            msgDiv.innerHTML = "";
+            const msgs = snapshot.val();
+            if(msgs) {
+                Object.values(msgs).forEach(m => {
+                    const cls = m.sender === "admin" ? "msg-admin" : "msg-user";
+                    msgDiv.innerHTML += `<div class="${cls}">${m.text}</div>`;
+                });
+                msgDiv.scrollTop = msgDiv.scrollHeight;
+            }
+        });
+    };
+
+    // 3. ADMİN CEVAP GÖNDER
+    window.sendAdminMessage = async () => {
+        const input = document.getElementById('admin-input');
+        if(!input.value || !activeUserId) return;
+
+        const msgData = {
+            text: input.value,
+            sender: "admin",
+            timestamp: new Date().getTime()
+        };
+
+        await push(ref(db, `messages/${activeUserId}`), msgData);
+        input.value = "";
+    };
+</script>
+</body>
+</html>
