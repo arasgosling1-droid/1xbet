@@ -12,37 +12,40 @@
         
         /* Header */
         header { background: var(--main-blue); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-weight: 900; font-style: italic; font-size: 22px; letter-spacing: -1px; }
-        .top-btns button { border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .logo { font-weight: 900; font-style: italic; font-size: 22px; }
+        .balance-area { font-weight: bold; color: var(--success-green); font-size: 14px; display: none; }
+        .top-btns button { border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .login-btn { background: rgba(255,255,255,0.2); color: white; }
         .reg-btn { background: var(--success-green); color: white; }
-        .balance-area { font-weight: bold; color: var(--success-green); font-size: 14px; display: none; }
 
-        /* Banner & Promo */
-        .promo-container { display: flex; overflow-x: auto; padding: 15px; gap: 12px; background: white; scrollbar-width: none; }
-        .promo-card { min-width: 200px; height: 120px; background: var(--dark-blue); border-radius: 12px; position: relative; overflow: hidden; flex-shrink: 0; }
-        .promo-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        /* Banner */
+        .promo-container { display: flex; overflow-x: auto; padding: 15px; gap: 12px; background: white; }
+        .promo-card { min-width: 250px; height: 130px; background: var(--dark-blue); border-radius: 12px; overflow: hidden; flex-shrink: 0; }
+        .promo-card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Oyun Izgarası */
-        .section-title { padding: 10px 15px; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; }
-        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px 15px; }
-        .game-item { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; cursor: pointer; }
-        .game-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
-        .game-name { font-size: 10px; text-align: center; padding: 5px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* Hediye Çarkı Butonu */
+        .wheel-trigger { background: linear-gradient(45deg, #f39c12, #d35400); color: white; margin: 10px 15px; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        /* Kayıt Modal */
-        .reg-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; flex-direction: column; }
+        /* Oyunlar */
+        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
+        .game-item { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
+        .game-item img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        .game-name { font-size: 10px; text-align: center; padding: 5px; font-weight: bold; }
+
+        /* Modallar (Kayıt ve Çark) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; flex-direction: column; }
         .reg-header { background: var(--main-blue); color: white; padding: 15px; display: flex; align-items: center; }
-        .reg-tabs { display: flex; border-bottom: 1px solid #ddd; }
-        .reg-tab { flex: 1; padding: 15px 5px; text-align: center; font-size: 11px; color: #666; }
-        .reg-tab.active { color: var(--main-blue); border-bottom: 3px solid var(--main-blue); font-weight: bold; }
-        .form-body { padding: 20px; overflow-y: auto; }
+        .form-body { padding: 20px; flex: 1; overflow-y: auto; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .final-btn { background: var(--success-green); color: white; border: none; width: 100%; padding: 15px; border-radius: 4px; font-weight: bold; font-size: 16px; margin-top: 15px; }
 
-        /* Alt Nav */
-        nav.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 1000; height: 60px; }
-        .nav-item { flex: 1; text-align: center; padding: 8px 0; color: #555; text-decoration: none; font-size: 10px; }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 2px; }
-        .nav-item.active { color: var(--main-blue); font-weight: bold; }
+        /* Çark Modalı Özel */
+        #wheel-modal { background: rgba(0,0,0,0.9); justify-content: center; align-items: center; color: white; }
+
+        /* Navigasyon */
+        nav.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 1000; height: 65px; }
+        .nav-item { flex: 1; text-align: center; padding: 10px 0; color: #555; text-decoration: none; font-size: 11px; }
+        .nav-item.active { color: var(--main-blue); border-top: 2px solid var(--main-blue); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -51,132 +54,167 @@
     <div class="logo">07 BET 🍀</div>
     <div class="balance-area" id="header-balance">0.00 TRY</div>
     <div class="top-btns" id="header-btns">
-        <button class="login-btn" onclick="openLogin()">Oturum Aç</button>
+        <button class="login-btn">Giriş</button>
         <button class="reg-btn" onclick="toggleReg(true)">Kaydol</button>
     </div>
 </header>
 
 <div class="promo-container">
-    <div class="promo-card"><img src="https://placehold.co/400x200/1b3d5d/white?text=%25200+HOSGELDIN+BONUSU"></div>
-    <div class="promo-card"><img src="https://placehold.co/400x200/2b567e/white?text=HER+GUN+BEDAVA+CARK"></div>
+    <div class="promo-card"><img src="https://placehold.co/400x200/1b3d5d/white?text=%25200+HOSGELDIN"></div>
+    <div class="promo-card"><img src="https://placehold.co/400x200/2b567e/white?text=POKER+TOURNAMENT"></div>
 </div>
 
-<div class="section-title"><span>Popüler Slotlar</span> <small style="color:var(--main-blue)">Tümünü gör</small></div>
+<div class="wheel-trigger" onclick="openWheel()">
+    🎡 HEDİYE ÇARKINI ÇEVİR (HER GÜN 1 ŞANS)
+</div>
 
-<div class="game-grid" id="casino-grid">
-    </div>
+<div class="game-grid" id="casino-grid"></div>
 
-<div class="reg-modal" id="regModal">
+<div class="modal" id="regModal">
     <div class="reg-header">
-        <span onclick="toggleReg(false)" style="cursor:pointer; font-size: 20px;">✕</span>
-        <span style="margin-left:20px; font-weight: bold;">HIZLI KAYIT</span>
-    </div>
-    <div class="reg-tabs">
-        <div class="reg-tab active">TEK TIKLA</div>
-        <div class="reg-tab">TELEFON</div>
-        <div class="reg-tab">E-MAIL</div>
+        <span onclick="toggleReg(false)" style="cursor:pointer; font-size: 24px; margin-right: 15px;">←</span>
+        <b>HIZLI KAYIT</b>
     </div>
     <div class="form-body">
-        <select id="country"><option value="Türkiye">Türkiye</option></select>
-        <select id="currency"><option value="TRY">TRY (Türk Lirası)</option></select>
-        <input type="text" id="promo" placeholder="Promosyon kodu (opsiyonel)">
+        <select id="country"><option>Türkiye</option></select>
+        <select id="currency"><option>TRY</option></select>
+        <input type="text" id="promo" placeholder="Promosyon Kodu">
         <select id="bonus-type">
-            <option value="Spor">Spor %200 - 8000 TRY'ye kadar</option>
-            <option value="Casino">Casino + 1xGames - 45000 TRY</option>
+            <option>Spor %200 Bonus</option>
+            <option>Casino %100 Bonus</option>
         </select>
-        <button class="final-btn" onclick="tekTiklaKayit()">KAYDOL</button>
+        <button class="final-btn" onclick="tekTiklaKayit()">KAYDI TAMAMLA</button>
     </div>
+</div>
+
+<div class="modal" id="wheel-modal">
+    <h2 style="color:#f39c12">GÜNLÜK HEDİYE ÇARKI</h2>
+    <div style="position:relative; margin: 20px 0;">
+        <div style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:15px solid transparent; border-right:15px solid transparent; border-top:25px solid #85b527; z-index:10;"></div>
+        <canvas id="canvas" width="320" height="320" style="border-radius:50%; border:5px solid #fff; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);"></canvas>
+    </div>
+    <button id="spin-btn" class="final-btn" style="width:200px" onclick="startSpin()">ÇEVİR</button>
+    <p onclick="closeWheel()" style="margin-top:20px; cursor:pointer; opacity:0.5;">Kapat</p>
 </div>
 
 <nav class="bottom-nav">
-    <a href="#" class="nav-item active"><i>⚽</i>Spor</a>
-    <a href="#" class="nav-item"><i>🎰</i>Casino</a>
-    <a href="#" class="nav-item"><i>🎫</i>Kupon</a>
-    <a href="profil.html" class="nav-item"><i>👤</i>Profil</a>
-    <a href="#" class="nav-item" onclick="adminCheck()"><i>☰</i>Menü</a>
+    <a href="#" class="nav-item active">🏆<br>Spor</a>
+    <a href="#" class="nav-item">🎰<br>Casino</a>
+    <a href="#" class="nav-item">🎫<br>Kupon</a>
+    <a href="#" class="nav-item">👤<br>Profil</a>
+    <a href="#" class="nav-item" onclick="adminCheck()">☰<br>Menü</a>
 </nav>
 
 <script type="module">
-    import { db, ref, push, set, onValue } from "./firebase-handler.js";
+    import { db, ref, push, set, onValue, get } from "./firebase-handler.js";
 
-    // 1. Oyunları Yükleme
-    const slotOyunlari = [
-        { id: "vs20olympgate", ad: "Gates of Olympus", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20olympgate.png" },
-        { id: "vs20pbonanza", ad: "Sweet Bonanza", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20pbonanza.png" },
-        { id: "vs20sugarush", ad: "Sugar Rush", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20sugarush.png" },
-        { id: "vs20doghouse", ad: "The Dog House", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20doghouse.png" },
-        { id: "vs20cleocraze", ad: "Cleocatra", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20cleocraze.png" },
-        { id: "vs20starlight", ad: "Starlight Princess", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20starlight.png" }
+    // --- OYUNLARI YÜKLE ---
+    const oyunlar = [
+        { id: "vs20olympgate", ad: "Gates of Olympus" },
+        { id: "vs20pbonanza", ad: "Sweet Bonanza" },
+        { id: "vs20sugarush", ad: "Sugar Rush" },
+        { id: "vs20starlight", ad: "Starlight Princess" },
+        { id: "vs20doghouse", ad: "The Dog House" },
+        { id: "vs20cleocraze", ad: "Cleocatra" }
     ];
 
     window.onload = () => {
         const grid = document.getElementById('casino-grid');
-        grid.innerHTML = slotOyunlari.map(oyun => `
-            <div class="game-item" onclick="slotBaslat('${oyun.id}')">
-                <img src="${oyun.resim}">
-                <div class="game-name">${oyun.ad}</div>
+        grid.innerHTML = oyunlar.map(o => `
+            <div class="game-item" onclick="slotBaslat('${o.id}')">
+                <img src="https://static.pragmaticplay.net/game_pic/square/200/${o.id}.png">
+                <div class="game-name">${o.ad}</div>
             </div>
         `).join('');
-        checkUserSession();
+        checkUser();
     };
 
-    // 2. Tek Tıkla Kayıt (Firebase Bağlantılı)
+    // --- KAYIT SİSTEMİ ---
     window.tekTiklaKayit = async () => {
-        const userId = Math.floor(100000 + Math.random() * 900000);
-        const userPass = "vip" + Math.floor(100 + Math.random() * 899);
-
-        const yeniKayit = {
-            userId: userId,
-            password: userPass,
-            ulke: document.getElementById('country').value,
-            para: document.getElementById('currency').value,
-            promo: document.getElementById('promo').value || "YOK",
-            bonus: document.getElementById('bonus-type').value,
-            balance: 50000, // Deneme bakiyesi
-            tarih: new Date().toLocaleString('tr-TR'),
-            durum: "Aktif"
+        const id = Math.floor(100000 + Math.random() * 900000);
+        const pass = "vip" + Math.floor(100 + Math.random() * 899);
+        const user = {
+            userId: id, password: pass, balance: 50000, 
+            tarih: new Date().toLocaleString('tr-TR'), durum: "Aktif"
         };
 
         try {
-            const newUserRef = push(ref(db, 'kayitlar'));
-            await set(newUserRef, yeniKayit);
-            
-            alert(`KAYIT BAŞARILI!\n\nID: ${userId}\nŞifre: ${userPass}\n\nNot: Bu bilgileri not alınız.`);
-            localStorage.setItem('currentUser', JSON.stringify({...yeniKayit, firebaseKey: newUserRef.key}));
+            const res = push(ref(db, 'kayitlar'));
+            await set(res, user);
+            alert(`KAYIT BAŞARILI!\nID: ${id}\nŞifre: ${pass}`);
+            localStorage.setItem('currentUser', JSON.stringify({...user, firebaseKey: res.key}));
             window.location.reload();
-        } catch (error) {
-            alert("Hata: " + error.message);
-        }
+        } catch (e) { alert(e.message); }
     };
 
-    // 3. Kullanıcı Oturum Kontrolü
-    function checkUserSession() {
-        const user = JSON.parse(localStorage.getItem('currentUser'));
-        if (user) {
+    function checkUser() {
+        const u = JSON.parse(localStorage.getItem('currentUser'));
+        if(u) {
             document.getElementById('header-btns').style.display = 'none';
             document.getElementById('header-balance').style.display = 'block';
-            
-            // Bakiyeyi Firebase'den anlık dinle
-            onValue(ref(db, `kayitlar/${user.firebaseKey}/balance`), (snap) => {
-                document.getElementById('header-balance').innerText = snap.val().toLocaleString() + " TRY";
+            onValue(ref(db, `kayitlar/${u.firebaseKey}/balance`), (s) => {
+                document.getElementById('header-balance').innerText = s.val().toLocaleString() + " TRY";
             });
         }
     }
 
-    // 4. Oyun Başlatma (Demo)
+    // --- ÇARKIFELEK SİSTEMİ ---
+    const prizes = [
+        { text: "50 TRY", val: 50, col: "#1b3d5d" },
+        { text: "100 TRY", val: 100, col: "#2b567e" },
+        { text: "PAS", val: 0, col: "#e74c3c" },
+        { text: "250 TRY", val: 250, col: "#2b567e" },
+        { text: "50 TRY", val: 50, col: "#1b3d5d" },
+        { text: "500 TRY", val: 500, col: "#85b527" },
+        { text: "TEKRAR", val: 0, col: "#1b3d5d" },
+        { text: "100 TRY", val: 100, col: "#2b567e" }
+    ];
+
+    window.drawWheel = () => {
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const arc = Math.PI / (prizes.length / 2);
+        prizes.forEach((p, i) => {
+            const ang = i * arc;
+            ctx.fillStyle = p.col;
+            ctx.beginPath(); ctx.arc(160, 160, 160, ang, ang + arc); ctx.lineTo(160, 160); ctx.fill();
+            ctx.save(); ctx.translate(160 + Math.cos(ang+arc/2)*100, 160 + Math.sin(ang+arc/2)*100);
+            ctx.rotate(ang + arc/2 + Math.PI/2); ctx.fillStyle = "white";
+            ctx.fillText(p.text, -ctx.measureText(p.text).width/2, 0); ctx.restore();
+        });
+    };
+
+    window.startSpin = async () => {
+        const u = JSON.parse(localStorage.getItem('currentUser'));
+        if(!u) return alert("Giriş yapmalısın!");
+        document.getElementById("spin-btn").disabled = true;
+        const deg = Math.floor(3000 + Math.random() * 3000);
+        document.getElementById("canvas").style.transform = `rotate(${deg}deg)`;
+
+        setTimeout(async () => {
+            const actual = deg % 360;
+            const idx = Math.floor((360 - actual) / (360/prizes.length)) % prizes.length;
+            const win = prizes[idx];
+            if(win.val > 0) {
+                const r = ref(db, `kayitlar/${u.firebaseKey}/balance`);
+                const snap = await get(r);
+                await set(r, (snap.val() || 0) + win.val);
+                alert(`🎉 ${win.val} TRY Kazandın!`);
+            } else { alert("Maalesef!"); }
+            closeWheel();
+            document.getElementById("spin-btn").disabled = false;
+        }, 5000);
+    };
+
+    // Global erişimler
+    window.openWheel = () => { document.getElementById("wheel-modal").style.display="flex"; window.drawWheel(); };
+    window.closeWheel = () => document.getElementById("wheel-modal").style.display="none";
+    window.toggleReg = (s) => document.getElementById("regModal").style.display = s ? "flex":"none";
     window.slotBaslat = (id) => {
-        if(!localStorage.getItem('currentUser')) return alert("Lütfen önce kaydolun veya giriş yapın!");
-        const url = `https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=${id}&lang=tr&cur=TRY`;
-        window.open(url, '_blank', 'width=1000,height=700');
+        if(!localStorage.getItem('currentUser')) return alert("Giriş yap!");
+        window.open(`https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=${id}&lang=tr&cur=TRY`);
     };
-
-    // Fonksiyonları globale taşı
-    window.toggleReg = (show) => document.getElementById('regModal').style.display = show ? 'flex' : 'none';
-    window.adminCheck = () => {
-        const p = prompt("Yönetici Şifresi:");
-        if(p === "0707") window.location.href = "admin-panel.html";
-    };
+    window.adminCheck = () => { if(prompt("Şifre:")==="0707") window.location.href="admin-panel.html"; };
 </script>
-
 </body>
 </html>
