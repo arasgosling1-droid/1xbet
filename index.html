@@ -107,7 +107,34 @@
     <a href="#" class="nav-item" onclick="adminAccess()">☰<br>Menü</a>
 </nav>
 
-<script>
+<script>import { db, ref, onValue } from "./firebase-handler.js";
+
+async function loginUser() {
+    const identifier = document.querySelector('input[placeholder="E-mail veya ID*"]').value;
+    const password = document.querySelector('input[type="password"]').value;
+
+    if (!identifier || !password) return alert("Lütfen tüm alanları doldurun.");
+
+    const usersRef = ref(db, 'kayitlar');
+    
+    // Veritabanında kullanıcıyı tara
+    onValue(usersRef, (snapshot) => {
+        const users = snapshot.val();
+        let found = false;
+
+        for (let key in users) {
+            if ((users[key].eposta === identifier || users[key].userId == identifier) && users[key].password === password) {
+                found = true;
+                localStorage.setItem('currentUser', JSON.stringify(users[key]));
+                alert("Başarıyla giriş yapıldı!");
+                window.location.href = "ana-sayfa.html";
+                break;
+            }
+        }
+        if (!found) alert("Hatalı ID, E-posta veya Şifre!");
+    }, { onlyOnce: true });
+}
+
     function toggleReg(show) {
         document.getElementById('regModal').style.display = show ? 'flex' : 'none';
     }
