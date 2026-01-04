@@ -3,163 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>07 BET | Kazancın Adresi</title>
+    <title>07 BET | Kazancın Yeni Adresi</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --main-blue: #1e3a5a; --bg-gray: #f4f7f9; --07-green: #85b527; --dark-blue: #0f2235; --live-red: #e74c3c; }
-        body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg-gray); padding-bottom: 70px; }
+        body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg-gray); padding-bottom: 70px; overflow-x: hidden; }
         
+        /* Header */
         header { background: var(--main-blue); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .logo { font-weight: 900; font-size: 22px; letter-spacing: -1px; }
+        .logo { font-weight: 900; font-size: 22px; letter-spacing: -1px; cursor: pointer; }
         .logo span { color: var(--07-green); }
-        
         .balance-area { background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 20px; font-weight: bold; color: var(--07-green); display: none; border: 1px solid rgba(133, 181, 39, 0.3); }
-        
         .top-btns button { border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .reg-btn { background: var(--07-green); color: white; }
+        .reg-btn { background: var(--07-green); color: white; border: none; }
 
-        .section-title { padding: 15px; font-weight: 900; color: var(--main-blue); display: flex; justify-content: space-between; align-items: center; }
+        /* Banner */
+        .banner { background: var(--dark-blue); margin: 15px; padding: 20px; border-radius: 12px; color: white; position: relative; overflow: hidden; }
+        .banner h2 { margin: 0; font-size: 18px; color: var(--07-green); }
         
-        /* Maç Kartları */
+        /* Match Cards */
+        .section-title { padding: 15px 15px 5px; font-weight: 900; color: var(--main-blue); display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         .match-card { background: white; margin: 0 15px 12px; padding: 15px; border-radius: 12px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
         .m-header { display: flex; justify-content: space-between; font-size: 11px; color: #777; margin-bottom: 10px; }
-        .m-teams { font-weight: bold; font-size: 15px; margin-bottom: 15px; }
+        .m-teams { font-weight: bold; font-size: 15px; margin-bottom: 15px; color: var(--dark-blue); }
         .odds-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .odd-item { background: #f8f9fa; border: 1px solid #eee; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; }
-        .odd-item b { color: var(--07-green); display: block; font-size: 16px; }
+        .odd-item { background: #f8f9fa; border: 1px solid #eee; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .odd-item:active { background: #e9ecef; transform: scale(0.95); }
+        .odd-item span { display: block; font-size: 10px; color: #777; }
+        .odd-item b { color: var(--07-green); font-size: 15px; }
 
-        /* Çark Modalı */
+        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; flex-direction: column; }
+        .modal-inner { padding: 30px; text-align: center; }
         #wheel-modal { background: rgba(15, 34, 53, 0.98); justify-content: center; align-items: center; color: white; }
         
-        nav.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; height: 65px; border-top: 1px solid #eee; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .nav-link { flex: 1; text-align: center; padding: 12px; color: #666; text-decoration: none; font-size: 11px; font-weight: bold; }
+        /* Bottom Nav */
+        nav.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; height: 65px; border-top: 1px solid #eee; z-index: 1000; }
+        .nav-link { flex: 1; text-align: center; padding: 12px; color: #666; text-decoration: none; font-size: 10px; font-weight: bold; }
         .nav-link.active { color: var(--main-blue); border-top: 3px solid var(--main-blue); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo"><span>07</span> BET</div>
+    <div class="logo" onclick="location.reload()"><span>07</span> BET</div>
     <div class="balance-area" id="user-balance">0.00 TRY</div>
-    <div class="top-btns" id="auth-btns">
-        <button class="reg-btn" onclick="toggleModal('reg-modal', true)">07 ÜYE OL</button>
+    <div id="auth-btns" class="top-btns">
+        <button class="reg-btn" onclick="window.toggleModal('reg-modal', true)">07 ÜYE OL</button>
     </div>
 </header>
 
-<div class="section-title">🔴 CANLI BAHİS <span style="font-size:10px; color:var(--live-red);">CANLI YAYIN</span></div>
-<div id="matches-container"></div>
-
-<div class="section-title">🎡 07 ŞANS ÇARKI</div>
-<div style="margin: 0 15px; background: linear-gradient(45deg, #1e3a5a, #2b567e); padding: 20px; border-radius: 15px; text-align: center; color: white; cursor: pointer;" onclick="openWheel()">
-    <b>GÜNLÜK HEDİYE ÇARKI</b><br><small>Hemen tıkla, 500 TL'ye kadar bonus kazan!</small>
+<div class="banner">
+    <h2>%200 HOŞGELDİN BONUSU</h2>
+    <p style="font-size: 12px; margin: 5px 0 0;">07 BET ile ilk yatırımına özel dev bonus!</p>
 </div>
 
+<div class="section-title">🔴 CANLI BAHİS <span style="color:var(--live-red); font-size: 10px;">● CANLI</span></div>
+<div id="matches-container">
+    </div>
+
 <div class="modal" id="reg-modal">
-    <div style="background:var(--main-blue); color:white; padding:20px; font-weight:bold;">07 BET - HIZLI KAYIT</div>
-    <div style="padding:30px;">
-        <p>Hızlı kayıt sistemiyle saniyeler içinde hesabın hazır!</p>
-        <button class="reg-btn" style="width:100%; padding:15px;" onclick="startRegistration()">HESABIMI OLUŞTUR</button>
-        <p style="text-align:center; margin-top:20px; color:#999;" onclick="toggleModal('reg-modal', false)">Vazgeç</p>
+    <div style="background:var(--main-blue); color:white; padding:20px; font-weight:bold; display:flex; justify-content: space-between;">
+        <span>07 BET - HIZLI KAYIT</span>
+        <span onclick="window.toggleModal('reg-modal', false)" style="cursor:pointer">✕</span>
+    </div>
+    <div class="modal-inner">
+        <img src="https://cdn-icons-png.flaticon.com/512/3402/3402945.png" width="80" style="margin-bottom: 20px;">
+        <h3>Tek Tıkla Hesabın Hazır!</h3>
+        <p style="color:#666; font-size: 14px;">Kullanıcı adı ve şifreniz otomatik oluşturulacaktır.</p>
+        <button class="reg-btn" style="width:100%; padding:18px; font-size:16px; margin-top:10px;" onclick="window.startRegistration()">HESABIMI OLUŞTUR</button>
     </div>
 </div>
 
-<div class="modal" id="wheel-modal">
-    <h2 style="color:var(--07-green)">07 LUCKY WHEEL</h2>
-    <canvas id="canvas" width="320" height="320" style="transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);"></canvas>
-    <button id="spin-btn" class="reg-btn" style="width:200px; margin-top:20px; font-size:18px;" onclick="spinWheel()">ÇEVİR</button>
-    <p onclick="toggleModal('wheel-modal', false)" style="margin-top:20px; cursor:pointer;">Kapat</p>
-</div>
-
 <nav class="bottom-nav">
-    <a href="index.html" class="nav-link active">🏆<br>Spor</a>
-    <a href="deposit.html" class="nav-link">💳<br>Yatır</a>
-    <a href="withdraw.html" class="nav-link">💰<br>Çek</a>
-    <a href="#" class="nav-link" onclick="adminGo()">☰<br>Menü</a>
+    <a href="#" class="nav-link active">🏆<br>Bahis</a>
+    <a href="#" class="nav-link" onclick="alert('Çok Yakında!')">🎰<br>Casino</a>
+    <a href="#" class="nav-link" onclick="window.adminGo()">☰<br>Profil</a>
 </nav>
 
 <script type="module">
     import { db, ref, set, push, onValue, get } from "./firebase-handler.js";
 
-    // --- MAÇLAR ---
+    // 1. GLOBAL ERİŞİM İÇİN FONKSİYONLARI WINDOW'A BAĞLA
+    window.toggleModal = (id, state) => {
+        document.getElementById(id).style.display = state ? 'flex' : 'none';
+    };
+
+    window.startRegistration = async () => {
+        const randomId = "07-" + Math.floor(100000 + Math.random() * 900000);
+        const randomPass = "vip" + Math.floor(100 + Math.random() * 899);
+        
+        const userData = {
+            userId: randomId,
+            password: randomPass,
+            balance: 100, // 100 TL Deneme Bonusu
+            tarih: new Date().toLocaleString('tr-TR'),
+            durum: "Aktif"
+        };
+
+        try {
+            const newUserRef = push(ref(db, 'kayitlar'));
+            await set(newUserRef, userData);
+            localStorage.setItem('currentUser', JSON.stringify({
+                ...userData,
+                firebaseKey: newUserRef.key
+            }));
+            alert(`Kayıt Başarılı!\n\nKullanıcı ID: ${randomId}\nŞifre: ${randomPass}\n\nBu bilgileri not alınız!`);
+            window.location.reload();
+        } catch (e) {
+            alert("Kayıt sırasında bir hata oluştu: " + e.message);
+        }
+    };
+
+    window.makeBet = async (selection, rate) => {
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if(!user) {
+            window.toggleModal('reg-modal', true);
+            return;
+        }
+
+        const amount = prompt(`${selection} (${rate}) seçeneği için bahis miktarı giriniz:`, "50");
+        if(!amount || isNaN(amount) || amount < 10) {
+            alert("Lütfen geçerli bir miktar giriniz (Min: 10 TRY)");
+            return;
+        }
+
+        const bRef = ref(db, `kayitlar/${user.firebaseKey}/balance`);
+        const snapshot = await get(bRef);
+        const currentBal = snapshot.val();
+
+        if(currentBal < amount) {
+            alert("Yetersiz Bakiye!");
+            return;
+        }
+
+        try {
+            await set(bRef, currentBal - parseFloat(amount));
+            await push(ref(db, 'aktifKuponlar'), {
+                userId: user.userId,
+                secim: selection,
+                oran: rate,
+                miktar: parseFloat(amount),
+                durum: "Beklemede",
+                tarih: new Date().toLocaleString('tr-TR')
+            });
+            alert("Bahis başarıyla alındı. Bol şans!");
+        } catch (e) {
+            alert("Hata: " + e.message);
+        }
+    };
+
+    window.adminGo = () => {
+        const pass = prompt("Yönetici Şifresi:");
+        if(pass === "0707") {
+            window.location.href = "admin-panel.html";
+        }
+    };
+
+    // 2. MAÇLARI LİSTELE
     const matches = [
-        { id: 1, home: "Galatasaray", away: "Fenerbahçe", score: "0-0", min: "15'", odds: [1.90, 3.20, 2.80] },
-        { id: 2, home: "Real Madrid", away: "Man City", score: "1-2", min: "72'", odds: [3.40, 3.10, 1.85] }
+        { home: "Galatasaray", away: "Fenerbahçe", score: "1-1", min: "34'", odds: [2.10, 3.20, 2.90] },
+        { home: "Real Madrid", away: "Barcelona", score: "0-0", min: "12'", odds: [1.85, 3.40, 3.20] },
+        { home: "Liverpool", away: "Arsenal", score: "2-1", min: "56'", odds: [1.95, 3.10, 3.40] }
     ];
 
-    window.onload = () => {
+    const renderMatches = () => {
         const container = document.getElementById('matches-container');
         container.innerHTML = matches.map(m => `
             <div class="match-card">
-                <div class="m-header"><span>🏆 Trendyol Süper Lig</span> <span style="color:red">● ${m.min} ${m.score}</span></div>
-                <div class="m-teams">${m.home} vs ${m.away}</div>
+                <div class="m-header"><span>🌍 AVRUPA LİGLERİ</span> <span>${m.min} <b style="color:red">${m.score}</b></span></div>
+                <div class="m-teams">${m.home} - ${m.away}</div>
                 <div class="odds-grid">
-                    <div class="odd-item" onclick="makeBet('${m.home}', ${m.odds[0]})"><span>1</span><b>${m.odds[0]}</b></div>
-                    <div class="odd-item" onclick="makeBet('Beraberlik', ${m.odds[1]})"><span>X</span><b>${m.odds[1]}</b></div>
-                    <div class="odd-item" onclick="makeBet('${m.away}', ${m.odds[2]})"><span>2</span><b>${m.odds[2]}</b></div>
+                    <div class="odd-item" onclick="window.makeBet('${m.home}', ${m.odds[0]})"><span>1</span><b>${m.odds[0]}</b></div>
+                    <div class="odd-item" onclick="window.makeBet('Beraberlik', ${m.odds[1]})"><span>X</span><b>${m.odds[1]}</b></div>
+                    <div class="odd-item" onclick="window.makeBet('${m.away}', ${m.odds[2]})"><span>2</span><b>${m.odds[2]}</b></div>
                 </div>
             </div>
         `).join('');
-        checkUser();
     };
 
-    // --- KAYIT ---
-    window.startRegistration = async () => {
-        const id = "07-" + Math.floor(1000 + Math.random() * 9000);
-        const pass = "vip07";
-        const user = { userId: id, password: pass, balance: 100, tarih: new Date().toLocaleString('tr-TR') }; // 100 TL Hoşgeldin
-        const res = push(ref(db, 'kayitlar'));
-        await set(res, user);
-        localStorage.setItem('currentUser', JSON.stringify({...user, firebaseKey: res.key}));
-        alert(`07 BET'e Hoş Geldin!\n\nID: ${id}\nŞifre: ${pass}`);
-        window.location.reload();
-    };
-
-    function checkUser() {
-        const u = JSON.parse(localStorage.getItem('currentUser'));
-        if(u) {
+    // 3. OTURUM KONTROLÜ
+    const checkSession = () => {
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if(user) {
             document.getElementById('auth-btns').style.display = 'none';
             document.getElementById('user-balance').style.display = 'block';
-            onValue(ref(db, `kayitlar/${u.firebaseKey}/balance`), (s) => {
-                document.getElementById('user-balance').innerText = s.val() + " TRY";
+            onValue(ref(db, `kayitlar/${user.firebaseKey}/balance`), (s) => {
+                document.getElementById('user-balance').innerText = (s.val() || 0).toLocaleString() + " TRY";
             });
         }
-    }
-
-    // --- BAHİS SİSTEMİ ---
-    window.makeBet = async (name, rate) => {
-        const u = JSON.parse(localStorage.getItem('currentUser'));
-        if(!u) return alert("Giriş Yap!");
-        const amount = prompt(`${name} için bahis tutarı:`, "50");
-        if(!amount) return;
-        const balRef = ref(db, `kayitlar/${u.firebaseKey}/balance`);
-        const s = await get(balRef);
-        if(s.val() < amount) return alert("Yetersiz Bakiye!");
-        await set(balRef, s.val() - amount);
-        await push(ref(db, 'aktifKuponlar'), { userId: u.userId, secim: name, oran: rate, miktar: amount, durum: "Beklemede" });
-        alert("07 BET Bahis Alındı!");
     };
 
-    // --- ÇARK SİSTEMİ ---
-    const prizes = [ {t:"50 TL",v:50,c:"#1e3a5a"}, {t:"100 TL",v:100,c:"#2b567e"}, {t:"BOŞ",v:0,c:"#888"}, {t:"500 TL",v:500,c:"#85b527"} ];
-    window.openWheel = () => { toggleModal('wheel-modal', true); drawWheel(); };
-    window.spinWheel = () => {
-        const deg = 3000 + Math.random() * 3000;
-        document.getElementById('canvas').style.transform = `rotate(${deg}deg)`;
-        setTimeout(() => alert("Kazanılan ödül bakiyene eklendi!"), 5000);
-    };
+    // Başlat
+    renderMatches();
+    checkSession();
 
-    function drawWheel() {
-        const ctx = document.getElementById("canvas").getContext("2d");
-        const arc = Math.PI / (prizes.length / 2);
-        prizes.forEach((p, i) => {
-            ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(160, 160, 160, i*arc, (i+1)*arc); ctx.lineTo(160,160); ctx.fill();
-        });
-    }
-
-    window.toggleModal = (id, s) => document.getElementById(id).style.display = s ? 'flex':'none';
-    window.adminGo = () => { if(prompt("Kod:") === "0707") window.location.href="admin-panel.html"; };
 </script>
 </body>
 </html>
