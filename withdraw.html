@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Çek | 07 BET</title>
+    <style>
+        :root { --main-blue: #2b567e; --success-green: #85b527; }
+        body { font-family: 'Roboto', sans-serif; background: #f2f4f7; margin: 0; padding: 15px; }
+        
+        .balance-card { background: var(--main-blue); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .balance-card span { font-size: 24px; font-weight: bold; color: var(--success-green); }
+
+        .withdraw-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .method-item { background: white; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; border: 2px solid transparent; }
+        .method-item.active { border-color: var(--main-blue); background: #eef5ff; }
+        .method-item img { width: 40px; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
+
+        #withdraw-form { display: none; background: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .info-text { font-size: 11px; color: #ee5253; margin-bottom: 15px; font-weight: bold; }
+        .draw-btn { background: var(--main-blue); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="balance-card">
+    <p>Çekilebilir Bakiyeniz</p>
+    <span id="current-bal">0.00 TRY</span>
+</div>
+
+<h3>Çekim Yöntemi Seçin</h3>
+<div class="withdraw-methods">
+    <div class="method-item" onclick="selectMethod('Papara', this)">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Papara_Logo.png">
+        <b>Papara</b>
+    </div>
+    <div class="method-item" onclick="selectMethod('IBAN / Banka', this)">
+        <img src="https://cdn-icons-png.flaticon.com/512/2845/2845811.png">
+        <b>IBAN</b>
+    </div>
+</div>
+
+<div id="withdraw-form">
+    <h4 id="method-title">Para Çekme Formu</h4>
+    <div class="info-text">* Minimum çekim limiti 250 TRY'dir.</div>
+    
+    <input type="number" id="w-amount" placeholder="Çekilecek Tutar">
+    <input type="text" id="w-account" placeholder="Papara No veya IBAN Adresi">
+    <input type="text" id="w-name" placeholder="Hesap Sahibi Ad Soyad">
+    
+    <button class="draw-btn" onclick="submitWithdraw()">ÇEKİM TALEBİ OLUŞTUR</button>
+</div>
+
+<script type="module">
+    import { db, ref, push, set, get, onValue } from "./firebase-handler.js";
+
+    let selectedMethod = "";
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+
+    // Bakiyeyi Canlı Takip Et
+    if(user) {
+        onValue(ref(db, `kayitlar/${user.firebaseKey}/balance`), (snap) => {
+            const bal = snap.val() || 0;
+            document.getElementById('current-bal').innerText = bal.toLocaleString() + " TRY";
+        });
+    }
+
+    window.selectMethod = (method, element) => {
+        selectedMethod = method;
+        document.querySelectorAll('.method-item').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('method-title').innerText = method + " ile Çekim";
+        document.getElementById('withdraw-form').style.display = 'block';
+    };
+
+    window.submitWithdraw = async () => {
+        const amount = parseFloat(document.getElementById('w-amount').value);
+        const account = document.getElementById('w-account').value;
+        const name = document.getElementById('w-name').value;
+
+        if(!user) return alert("Giriş yapmalısınız!");
+        if(amount < 250) return alert("Minimum çekim 250 TRY'dir.");
+        if(!account || !name) return alert("Lütfen tüm alanları doldurun.");
+
+        // Bakiyeyi kontrol et
+        const userRef = ref(db, `kayitlar/${user.firebaseKey}`);
+        const snap = await get(userRef);
+        const userData = snap.val();
+
+        if(userData.balance < amount) {
+            return alert("Yetersiz bakiye!");
+        }
+
+        try {
+            // 1. Talebi oluştur
+            const talep = {
+                userId: user.userId,
+                userFirebaseKey: user.firebaseKey,
+                miktar: amount,
+                yontem: selectedMethod,
+                hesapBilgisi: account,
+                adSoyad: name,
+                tarih: new Date().toLocaleString('tr-TR'),
+                durum: "Beklemede"
+            };
+
+            // 2. Bakiyeyi Düşür (Para çekme talebi verildiği an bakiye eksilir)
+            await set(ref(db, `kayitlar/${user.firebaseKey}/balance`), userData.balance - amount);
+
+            // 3. Bildirimi Gönder
+            await push(ref(db, 'cekimTalepleri'), talep);
+
+            alert("Çekim talebiniz alındı! En geç 30 dakika içinde hesabınıza geçecektir.");
+            window.location.href = "index.html";
+        } catch (e) { alert("Hata: " + e.message); }
+    };
+</script>
+</body>
+</html>
