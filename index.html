@@ -322,5 +322,263 @@ function playNow(gameName) {
     console.log(`${gameName} başlatılıyor...`);
     // Iframe veya yeni sekme kodları buraya
 }
+async function quickRegister() {
+    const userData = {
+        userId: Math.floor(100000 + Math.random() * 900000),
+        password: "vıp" + Math.floor(100 + Math.random() * 899),
+        balance: 50000, // Başlangıç bakiyesi eklendi
+        currency: "TRY",
+        // ... diğer veriler
+    };
+    // Firebase'e kaydetme kodu...
+}
+import { db, ref, onValue } from "./firebase-handler.js";
+
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+if (currentUser) {
+    const balanceRef = ref(db, `kayitlar/${currentUser.firebaseKey}/balance`);
+    
+    onValue(balanceRef, (snapshot) => {
+        const currentBalance = snapshot.val();
+        document.getElementById('user-balance').innerText = 
+            new Intl.NumberFormat('tr-TR').format(currentBalance) + " TRY";
+    });
+}
+import { db, ref, set } from "./firebase-handler.js";
+
+async function playSpin(betAmount) {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    let newBalance = user.balance - betAmount;
+
+    if (newBalance < 0) {
+        alert("Yetersiz bakiye! Lütfen yükleme yapın.");
+        return;
+    }
+
+    // Firebase'de bakiyeyi güncelle
+    await set(ref(db, `kayitlar/${user.firebaseKey}/balance`), newBalance);
+    
+    // Rastgele kazanç simülasyonu (%10 ihtimalle kazanma)
+    if (Math.random() < 0.1) {
+        const winAmount = betAmount * 5;
+        newBalance += winAmount;
+        await set(ref(db, `kayitlar/${user.firebaseKey}/balance`), newBalance);
+        alert(`TEBRİKLER! ${winAmount} TRY Kazandınız!`);
+    }
+}
+function updateBalanceAdmin(userKey, newAmount) {
+    set(ref(db, `kayitlar/${userKey}/balance`), parseFloat(newAmount))
+    .then(() => alert("Bakiye güncellendi!"));
+}
+<div class="deposit-container">
+    <div class="deposit-header">
+        <h2>PARA YATIRMA</h2>
+    </div>
+
+    <div class="payment-methods">
+        <div class="method-card" onclick="openDepositForm('Papara', '150 - 50.000 TRY')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Papara_Logo.png" alt="Papara">
+            <span>Papara (Anında)</span>
+            <small>Limit: 150 - 50.000 TRY</small>
+        </div>
+
+        <div class="method-card" onclick="openDepositForm('Havale/EFT', '500 - 100.000 TRY')">
+            <img src="https://cdn-icons-png.flaticon.com/512/2845/2845811.png" alt="Havale">
+            <span>Banka Havalesi</span>
+            <small>Limit: 500 - 100.000 TRY</small>
+        </div>
+    </div>
+
+    <div id="depositForm" style="display:none; padding:20px; background:#fff; border-radius:10px; margin-top:20px;">
+        <h3 id="selectedMethod">Papara</h3>
+        <input type="number" id="depositAmount" placeholder="Yatırmak istediğiniz miktar">
+        <input type="text" id="senderName" placeholder="Adınız Soyadınız">
+        <p style="font-size:12px; color:red;">* Lütfen transfer açıklama kısmına ID numaranızı yazınız.</p>
+        <button class="final-btn" onclick="sendDepositRequest()">ÖDEME BİLDİRİMİ GÖNDER</button>
+    </div>
+</div>
+import { db, ref, push, set } from "./firebase-handler.js";
+
+async function sendDepositRequest() {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    const amount = document.getElementById('depositAmount').value;
+    const method = document.getElementById('selectedMethod').innerText;
+    const name = document.getElementById('senderName').value;
+
+    if(!amount || amount < 150) return alert("Minimum yatırım limiti 150 TRY'dir.");
+
+    const bildirim = {
+        userId: user.userId,
+        adSoyad: name,
+        miktar: parseFloat(amount),
+        yontem: method,
+        tarih: new Date().toLocaleString('tr-TR'),
+        durum: "Beklemede" // Admin onaylayınca "Onaylandı" olacak
+    };
+
+    try {
+        const bildirimRef = ref(db, 'odemeBildirimleri');
+        await push(bildirimRef, bildirim);
+        alert("Ödeme bildiriminiz alındı! Kontrol edildikten sonra bakiyeniz güncellenecektir.");
+        location.reload();
+    } catch (e) {
+        alert("Hata: " + e.message);
+    }
+}
+// Admin tarafındaki onay fonksiyonu
+async function onayYatirim(bildirimKey, userId, miktar) {
+    // 1. Kullanıcının mevcut bakiyesini al ve üstüne ekle
+    const userBalanceRef = ref(db, `users/${userId}/balance`);
+    // (Bakiye çekme ve güncelleme işlemleri burada yapılır)
+    
+    // 2. Bildirimi "Onaylandı" olarak işaretle
+    await set(ref(db, `odemeBildirimleri/${bildirimKey}/durum`), "Onaylandı");
+    
+    alert("Bakiye başarıyla tanımlandı!");
+}
+import { db, ref, onValue } from "./firebase-handler.js";
+
+const user = JSON.parse(localStorage.getItem('currentUser'));
+
+if (user) {
+    const balanceRef = ref(db, `kayitlar/${user.firebaseKey}/balance`);
+    let initialLoad = true;
+
+    onValue(balanceRef, (snapshot) => {
+        const newBalance = snapshot.val();
+        
+        // İlk yüklemede değil, sadece rakam değiştiğinde uyarı ver
+        if (!initialLoad) {
+            // Ses efekti çal
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3');
+            audio.play();
+            
+            // Ekranda bildirim göster
+            alert(`🎉 Tebrikler! Ödemeniz onaylandı. Güncel Bakiyeniz: ${newBalance} TRY`);
+        }
+        
+        // Arayüzdeki bakiye rakamını güncelle
+        document.getElementById('top-balance-display').innerText = newBalance + " TRY";
+        initialLoad = false;
+    });
+}
+const games = [
+    { id: "vs20olympgate", name: "Gate of Olympus", category: "Popüler", img: "olympus.png" },
+    { id: "vs20pbonanza", name: "Sweet Bonanza", category: "Slot", img: "bonanza.png" },
+    { id: "vs20sugarush", name: "Sugar Rush", category: "Yeni", img: "sugar.png" },
+    { id: "1xg_crash", name: "Crash (1xGames)", category: "Hızlı", img: "crash.png" }
+];
+
+function renderCasino(filter = "Hepsi") {
+    const container = document.getElementById('casino-grid');
+    container.innerHTML = "";
+
+    const filteredGames = filter === "Hepsi" ? games : games.filter(g => g.category === filter);
+
+    filteredGames.forEach(game => {
+        container.innerHTML += `
+            <div class="game-card" onclick="checkBalanceAndPlay('${game.id}')">
+                <img src="img/slots/${game.img}" alt="${game.name}">
+                <div class="game-overlay"><span>HEMEN OYNA</span></div>
+                <p>${game.name}</p>
+            </div>
+        `;
+    });
+}
+function checkBalanceAndPlay(gameId) {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (!user) {
+        alert("Lütfen önce giriş yapın!");
+        return;
+    }
+
+    if (user.balance <= 0) {
+        alert("Bakiyeniz yetersiz. Lütfen para yatırın.");
+        window.location.href = "deposit.html";
+        return;
+    }
+
+    // Her şey tamamsa oyunu aç (Demo veya Gerçek Iframe)
+    window.location.href = `play.html?game=${gameId}`;
+}
+<div id="chat-wrapper" style="position: fixed; bottom: 80px; right: 20px; z-index: 9999;">
+    <div id="chat-btn" onclick="toggleChat()" style="background: #85b527; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+        <img src="https://cdn-icons-png.flaticon.com/512/6813/6813928.png" width="30" style="filter: invert(1);">
+    </div>
+
+    <div id="chat-window" style="display: none; width: 300px; height: 400px; background: #fff; border-radius: 15px; flex-direction: column; box-shadow: 0 5px 25px rgba(0,0,0,0.5); overflow: hidden;">
+        <div style="background: #2b567e; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between;">
+            <span>7/24 Canlı Destek</span>
+            <span onclick="toggleChat()" style="cursor:pointer;">✕</span>
+        </div>
+        <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f4f7f9;">
+            </div>
+        <div style="padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 5px;">
+            <input type="text" id="chat-input" placeholder="Mesajınız..." style="flex: 1; border: 1px solid #ddd; padding: 8px; border-radius: 5px;">
+            <button onclick="sendMessage()" style="background: #85b527; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Gönder</button>
+        </div>
+    </div>
+</div>
+import { db, ref, push, set, onValue } from "./firebase-handler.js";
+
+const user = JSON.parse(localStorage.getItem('currentUser'));
+
+// Sohbeti aç/kapat
+window.toggleChat = () => {
+    const win = document.getElementById('chat-window');
+    win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+};
+
+// Mesaj Gönder
+window.sendMessage = async () => {
+    const input = document.getElementById('chat-input');
+    if (!input.value.trim() || !user) return;
+
+    const messageData = {
+        text: input.value,
+        sender: "user",
+        userId: user.userId,
+        timestamp: new Date().getTime()
+    };
+
+    const chatRef = ref(db, `messages/${user.userId}`);
+    await push(chatRef, messageData);
+    input.value = "";
+};
+
+// Mesajları Dinle (Anlık)
+if (user) {
+    onValue(ref(db, `messages/${user.userId}`), (snapshot) => {
+        const messagesDiv = document.getElementById('chat-messages');
+        messagesDiv.innerHTML = "";
+        const data = snapshot.val();
+        if (data) {
+            Object.values(data).forEach(msg => {
+                const align = msg.sender === "user" ? "flex-end" : "flex-start";
+                const color = msg.sender === "user" ? "#85b527" : "#2b567e";
+                messagesDiv.innerHTML += `
+                    <div style="align-self: ${align}; background: ${color}; color: white; padding: 8px 12px; border-radius: 10px; max-width: 80%; font-size: 13px;">
+                        ${msg.text}
+                    </div>`;
+            });
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    });
+}
+let currentKupon = [];
+
+function kuponaEkle(matchName, choice, oran) {
+    // 1. Kupona maçı ekle
+    currentKupon.push({ matchName, choice, oran });
+    
+    // 2. Toplam oranı hesapla
+    let toplamOran = currentKupon.reduce((acc, curr) => acc * curr.oran, 1);
+    
+    // 3. Kupon arayüzünü güncelle (Sağ alttaki "Bahis Kuponu" sekmesi)
+    document.getElementById('kupon-count').innerText = currentKupon.length;
+    document.getElementById('total-oran').innerText = toplamOran.toFixed(2);
+}
 
 
