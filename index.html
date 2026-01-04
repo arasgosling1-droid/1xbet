@@ -210,4 +210,77 @@ function oyunlariYukle() {
         </div>
     `).join('');
 }
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC_An7yZsY2E70w94SoXHnnNK37bncOq5o",
+  authDomain: "xbet-5e9b2.firebaseapp.com",
+  projectId: "xbet-5e9b2",
+  storageBucket: "xbet-5e9b2.firebasestorage.app",
+  messagingSenderId: "109325889532",
+  appId: "1:109325889532:web:29fa29604f5c033bef4c79",
+  measurementId: "G-NEJ6BEMQMC",
+  databaseURL: "https://xbet-5e9b2-default-rtdb.firebaseio.com" // Realtime DB URL
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+export { db, ref, push, set, onValue };
+// index.html içerisindeki kayıt fonksiyonu
+async function tekTiklaKayit() {
+    const yeniKayit = {
+        id: Math.floor(10000000 + Math.random() * 90000000), // Rastgele ID
+        ulke: "Türkiye",
+        paraBirimi: "TRY",
+        promoKod: document.getElementById('promo').value || "YOK",
+        bonusSecimi: "Spor %200",
+        tarih: new Date().toLocaleString('tr-TR'),
+        cihaz: navigator.userAgent.slice(0, 50)
+    };
+
+    try {
+        const dbRef = ref(db, 'kayitlar');
+        const yeniRef = push(dbRef);
+        await set(yeniRef, yeniKayit);
+        
+        // Kullanıcıya ID ve Şifre göster (Görsellerdeki gibi)
+        alert(`Kayıt Başarılı!\nKullanıcı ID: ${yeniKayit.id}\nŞifre: 07bet_vıp`);
+        window.location.reload();
+    } catch (error) {
+        console.error("Hata:", error);
+    }
+}
+<div id="canli-akis"></div>
+
+<script type="module">
+    import { db, ref, onValue } from './firebase-handler.js';
+    
+    const bildirimSesi = new Audio('https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3');
+
+    onValue(ref(db, 'kayitlar'), (snapshot) => {
+        const veriler = snapshot.val();
+        const liste = document.getElementById('canli-akis');
+        liste.innerHTML = ""; 
+
+        if(veriler) {
+            bildirimSesi.play(); // Yeni veri geldiğinde çal
+            Object.values(veriler).reverse().forEach(user => {
+                liste.innerHTML += `
+                    <div style="background:#1b3d5d; color:white; padding:10px; margin:5px; border-left:4px solid #85b527;">
+                        <b>🆔 ID: ${user.id}</b> | 📅 ${user.tarih} <br>
+                        🌍 Ülke: ${user.ulke} | 🎁 Bonus: ${user.bonusSecimi}
+                    </div>`;
+            });
+        }
+    });
+</script>
+function slotBaslat(oyunKodu) {
+    const oyunEkrani = document.getElementById('slot-frame');
+    // Pragmatic Play Demo Link Yapısı
+    const url = `https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=${oyunKodu}&lang=tr&cur=TRY`;
+    oyunEkrani.src = url;
+    // Tam ekran moduna geçiş kodları buraya
+}
 
