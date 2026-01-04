@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>07 BET | Ana Komuta Merkezi</title>
+    <style>
+        :root { --dark: #0b1622; --blue: #1b3d5d; --green: #85b527; --red: #e74c3c; }
+        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
+        
+        /* Yan Menü */
+        .sidebar { width: 250px; background: #070e16; height: 100vh; padding: 20px; border-right: 1px solid var(--blue); }
+        .sidebar h2 { color: var(--green); text-align: center; font-style: italic; }
+        .nav-link { padding: 15px; display: block; color: #ccc; text-decoration: none; border-bottom: 1px solid #111; cursor: pointer; }
+        .nav-link:hover { background: var(--blue); color: white; }
+
+        /* İçerik Alanı */
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--blue); padding: 20px; border-radius: 10px; text-align: center; border-bottom: 4px solid var(--green); }
+        
+        table { width: 100%; border-collapse: collapse; background: var(--blue); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(0,0,0,0.3); color: var(--green); }
+        .btn { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .btn-approve { background: var(--green); color: black; }
+        .btn-reject { background: var(--red); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>07 BET ADMIN</h2>
+    <div class="nav-link" onclick="showTab('users')">👥 Üyeler</div>
+    <div class="nav-link" onclick="showTab('deposits')">💰 Ödeme Bildirimleri</div>
+    <div class="nav-link" onclick="showTab('bets')">🎫 Aktif Kuponlar</div>
+    <div class="nav-link" onclick="window.location.href='admin-chat.html'">💬 Canlı Destek</div>
+</div>
+
+<div class="content">
+    <div class="stats-grid">
+        <div class="stat-card"><h3 id="stat-user-count">0</h3><p>Toplam Üye</p></div>
+        <div class="stat-card"><h3 id="stat-total-dep">0 TRY</h3><p>Toplam Yatırım</p></div>
+        <div class="stat-card"><h3 id="stat-active-bets">0</h3><p>Bekleyen Kupon</p></div>
+    </div>
+
+    <div id="tab-deposits" class="admin-tab">
+        <h3>💰 Onay Bekleyen Ödemeler</h3>
+        <table id="deposit-table">
+            <thead><tr><th>ID</th><th>Miktar</th><th>Yöntem</th><th>Tarih</th><th>İşlem</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script type="module">
+    import { db, ref, onValue, set, get } from "./firebase-handler.js";
+
+    // 1. ÖDEME BİLDİRİMLERİNİ YÜKLE
+    onValue(ref(db, 'odemeBildirimleri'), (snapshot) => {
+        const table = document.querySelector('#deposit-table tbody');
+        table.innerHTML = "";
+        const data = snapshot.val();
+        if (data) {
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                if(item.durum === "Beklemede") {
+                    table.innerHTML += `
+                        <tr>
+                            <td>${item.userId}</td>
+                            <td>${item.miktar} TRY</td>
+                            <td>${item.yontem}</td>
+                            <td>${item.tarih}</td>
+                            <td>
+                                <button class="btn btn-approve" onclick="approveDeposit('${key}', '${item.userId}', ${item.miktar})">ONAYLA</button>
+                                <button class="btn btn-reject">REDDET</button>
+                            </td>
+                        </tr>`;
+                }
+            });
+        }
+    });
+
+    // 2. ÖDEME ONAYLAMA FONKSİYONU
+    window.approveDeposit = async (key, userId, miktar) => {
+        // Önce kullanıcının Firebase Key'ini bulmamız lazım (Basitleştirilmiş mantık)
+        onValue(ref(db, 'kayitlar'), async (snap) => {
+            const users = snap.val();
+            for(let fKey in users) {
+                if(users[fKey].userId == userId) {
+                    const newBalance = (users[fKey].balance || 0) + miktar;
+                    await set(ref(db, `kayitlar/${fKey}/balance`), newBalance); // Bakiyeyi güncelle
+                    await set(ref(db, `odemeBildirimleri/${key}/durum`), "Onaylandı"); // Bildirimi kapat
+                    alert("Bakiye başarıyla eklendi!");
+                    break;
+                }
+            }
+        }, { onlyOnce: true });
+    };
+</script>
+</body>
+</html>
