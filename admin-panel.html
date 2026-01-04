@@ -2,181 +2,62 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>07 BET | Admin Yönetim Paneli</title>
+    <title>07 BET | Admin</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; display: flex; }
-        .sidebar { width: 250px; background: #1b3d5d; color: white; min-height: 100vh; padding: 20px; }
-        .content { flex: 1; padding: 30px; }
-        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #1b3d5d; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; }
-        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-success { background: #27ae60; }
-        .btn-danger { background: #e74c3c; }
-        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .pending { background: #f1c40f; color: #000; }
-        .approved { background: #2ecc71; color: #fff; }
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; margin: 0; }
+        .sidebar { width: 220px; background: #0f2235; color: white; min-height: 100vh; padding: 20px; }
+        .main { flex: 1; padding: 30px; }
+        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        .btn { padding: 5px 10px; color: white; border: none; cursor: pointer; border-radius: 3px; }
+        .ok { background: #27ae60; }
+        .no { background: #e74c3c; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h2>07 BET ADMIN</h2>
-    <p>Hoş geldin, Patron</p>
+    <h1>07 BET</h1>
+    <p>Admin Paneli</p>
     <hr>
-    <div style="margin-top:20px;">
-        <p>• Kullanıcı Yönetimi</p>
-        <p>• Finansal İşlemler</p>
-        <p>• Kupon Onayları</p>
-    </div>
+    <p onclick="location.reload()" style="cursor:pointer;">🔄 Yenile</p>
 </div>
 
-<div class="content">
+<div class="main">
+    <div class="box">
+        <h2>💰 Bekleyen Ödemeler</h2>
+        <div id="deposits"></div>
+    </div>
     
-    <div class="card">
-        <h2>💰 Para Yatırma Talepleri</h2>
-        <table id="deposit-table">
-            <thead>
-                <tr>
-                    <th>Kullanıcı ID</th>
-                    <th>Miktar</th>
-                    <th>Yöntem</th>
-                    <th>Ad Soyad</th>
-                    <th>İşlem</th>
-                </tr>
-            </thead>
-            <tbody id="deposit-body"></tbody>
-        </table>
+    <div class="box">
+        <h2>⚽ Aktif Bahisler</h2>
+        <div id="bets"></div>
     </div>
-
-    <div class="card">
-        <h2>⚽ Bekleyen Kuponlar</h2>
-        <table id="bet-table">
-            <thead>
-                <tr>
-                    <th>Kullanıcı ID</th>
-                    <th>Seçim (Oran)</th>
-                    <th>Miktar</th>
-                    <th>Potansiyel</th>
-                    <th>Sonuçlandır</th>
-                </tr>
-            </thead>
-            <tbody id="bet-body"></tbody>
-        </table>
-    </div>
-
-    <div class="card">
-        <h2>💸 Para Çekme Talepleri</h2>
-        <table id="withdraw-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Miktar</th>
-                    <th>Hesap / IBAN</th>
-                    <th>Durum</th>
-                </tr>
-            </thead>
-            <tbody id="withdraw-body"></tbody>
-        </table>
-    </div>
-
 </div>
 
 <script type="module">
-    import { db, ref, onValue, set, get, push } from "./firebase-handler.js";
+    import { db, ref, onValue, set, get } from "./firebase-handler.js";
 
-    // 1. PARA YATIRMA LİSTELE VE ONAYLA
-    onValue(ref(db, 'odemeBildirimleri'), (snapshot) => {
-        const tbody = document.getElementById('deposit-body');
-        tbody.innerHTML = "";
-        snapshot.forEach((child) => {
-            const data = child.val();
-            if(data.durum === "Beklemede") {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${data.userId}</td>
-                        <td><b>${data.miktar} TRY</b></td>
-                        <td>${data.yontem}</td>
-                        <td>${data.adSoyad}</td>
-                        <td>
-                            <button class="btn btn-success" onclick="onayYatirim('${child.key}', '${data.userFirebaseKey}', ${data.miktar})">Onayla</button>
-                        </td>
-                    </tr>
-                `;
+    // Ödemeleri Takip Et
+    onValue(ref(db, 'odemeBildirimleri'), (s) => {
+        const div = document.getElementById('deposits');
+        div.innerHTML = "<table><tr><th>Kullanıcı</th><th>Miktar</th><th>Yöntem</th><th>Onay</th></tr>";
+        s.forEach(c => {
+            const d = c.val();
+            if(d.durum === "Beklemede") {
+                div.querySelector('table').innerHTML += `<tr><td>${d.userId}</td><td>${d.miktar} TL</td><td>${d.yontem}</td><td><button class="btn ok" onclick="onay('${c.key}', '${d.userFirebaseKey}', ${d.miktar})">✓</button></td></tr>`;
             }
         });
     });
 
-    window.onayYatirim = async (key, userKey, miktar) => {
-        const userRef = ref(db, `kayitlar/${userKey}/balance`);
-        const currentSnap = await get(userRef);
-        const newBalance = (currentSnap.val() || 0) + miktar;
-        
-        await set(userRef, newBalance);
+    window.onay = async (key, uKey, miktar) => {
+        const r = ref(db, `kayitlar/${uKey}/balance`);
+        const s = await get(r);
+        await set(r, (s.val() || 0) + miktar);
         await set(ref(db, `odemeBildirimleri/${key}/durum`), "Onaylandı");
-        alert("Bakiye yüklendi!");
+        alert("Bakiye Yüklendi!");
     };
-
-    // 2. KUPONLARI SONUÇLANDIR (KAZANDI/KAYBETTİ)
-    onValue(ref(db, 'aktifKuponlar'), (snapshot) => {
-        const tbody = document.getElementById('bet-body');
-        tbody.innerHTML = "";
-        snapshot.forEach((child) => {
-            const data = child.val();
-            if(data.durum === "Beklemede") {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${data.userId}</td>
-                        <td>${data.secim} (${data.oran})</td>
-                        <td>${data.miktar} TRY</td>
-                        <td style="color:green"><b>${(data.miktar * data.oran).toFixed(2)} TRY</b></td>
-                        <td>
-                            <button class="btn btn-success" onclick="kuponSonuc('${child.key}', 'Kazandı', '${data.userId}', ${data.miktar * data.oran})">✔</button>
-                            <button class="btn btn-danger" onclick="kuponSonuc('${child.key}', 'Kaybetti')">✘</button>
-                        </td>
-                    </tr>
-                `;
-            }
-        });
-    });
-
-    window.kuponSonuc = async (key, sonuc, userId, kazanc = 0) => {
-        if(sonuc === "Kazandı") {
-            // Kullanıcıyı bul ve bakiyesini ekle
-            const usersSnap = await get(ref(db, 'kayitlar'));
-            usersSnap.forEach(async (u) => {
-                if(u.val().userId == userId) {
-                    const newBal = (u.val().balance || 0) + kazanc;
-                    await set(ref(db, `kayitlar/${u.key}/balance`), newBal);
-                }
-            });
-        }
-        await set(ref(db, `aktifKuponlar/${key}/durum`), sonuc);
-        alert("Kupon " + sonuc + " olarak işaretlendi.");
-    };
-
-    // 3. PARA ÇEKME TALEPLERİ
-    onValue(ref(db, 'cekimTalepleri'), (snapshot) => {
-        const tbody = document.getElementById('withdraw-body');
-        tbody.innerHTML = "";
-        snapshot.forEach((child) => {
-            const data = child.val();
-            tbody.innerHTML += `
-                <tr>
-                    <td>${data.userId}</td>
-                    <td>${data.miktar} TRY</td>
-                    <td>${data.hesapBilgisi} (${data.adSoyad})</td>
-                    <td>
-                        <span class="status-badge ${data.durum === 'Beklemede' ? 'pending' : 'approved'}">${data.durum}</span>
-                        ${data.durum === 'Beklemede' ? `<button onclick="set(ref(db, 'cekimTalepleri/${child.key}/durum'), 'Tamamlandı')">Bitir</button>` : ''}
-                    </td>
-                </tr>
-            `;
-        });
-    });
 </script>
-
 </body>
 </html>
