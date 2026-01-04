@@ -310,4 +310,17 @@ function slotBaslat(oyunKodu) {
     oyunEkrani.src = url;
     // Tam ekran moduna geçiş kodları buraya
 }
+function playNow(gameName) {
+    // Kullanıcı giriş yapmamışsa kayıt sayfasına yönlendir
+    if (!localStorage.getItem('currentUser')) {
+        alert("Oynamak için lütfen önce giriş yapın!");
+        window.location.href = "kayit.html";
+        return;
+    }
+    
+    // Oyun demo linkini başlat (Örn: Polar Express)
+    console.log(`${gameName} başlatılıyor...`);
+    // Iframe veya yeni sekme kodları buraya
+}
+
 
