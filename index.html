@@ -10,808 +10,173 @@
         :root { --main-blue: #2b567e; --bg-gray: #f2f4f7; --success-green: #85b527; --dark-blue: #1b3d5d; }
         body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg-gray); color: #333; padding-bottom: 70px; }
         
-        /* Header & Logo */
-        header { background: var(--main-blue); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; }
-        .logo { font-weight: 900; font-style: italic; font-size: 22px; }
-        .top-btns button { border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .login-btn { background: rgba(255,255,255,0.2); color: white; margin-right: 5px; }
+        /* Header */
+        header { background: var(--main-blue); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-weight: 900; font-style: italic; font-size: 22px; letter-spacing: -1px; }
+        .top-btns button { border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .login-btn { background: rgba(255,255,255,0.2); color: white; }
         .reg-btn { background: var(--success-green); color: white; }
+        .balance-area { font-weight: bold; color: var(--success-green); font-size: 14px; display: none; }
 
-        /* Banner & Slider Alanı */
-        .promo-container { display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: white; }
-        .promo-card { min-width: 140px; height: 180px; background: #ddd; border-radius: 8px; position: relative; overflow: hidden; }
-        .promo-card img { width: 100%; height: 100%; object-fit: cover; }
+        /* Banner & Promo */
+        .promo-container { display: flex; overflow-x: auto; padding: 15px; gap: 12px; background: white; scrollbar-width: none; }
+        .promo-card { min-width: 200px; height: 120px; background: var(--dark-blue); border-radius: 12px; position: relative; overflow: hidden; flex-shrink: 0; }
+        .promo-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
 
-        /* Kayıt Formu (Görüntüdeki gibi 3'lü seçim) */
+        /* Oyun Izgarası */
+        .section-title { padding: 10px 15px; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; }
+        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px 15px; }
+        .game-item { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; cursor: pointer; }
+        .game-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+        .game-name { font-size: 10px; text-align: center; padding: 5px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Kayıt Modal */
         .reg-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; flex-direction: column; }
         .reg-header { background: var(--main-blue); color: white; padding: 15px; display: flex; align-items: center; }
-        .reg-tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; }
-        .reg-tab { flex: 1; padding: 15px 5px; text-align: center; font-size: 11px; color: #666; cursor: pointer; }
+        .reg-tabs { display: flex; border-bottom: 1px solid #ddd; }
+        .reg-tab { flex: 1; padding: 15px 5px; text-align: center; font-size: 11px; color: #666; }
         .reg-tab.active { color: var(--main-blue); border-bottom: 3px solid var(--main-blue); font-weight: bold; }
-        
-        .form-body { padding: 20px; flex: 1; overflow-y: auto; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background: #f9f9f9; }
-        .final-btn { background: var(--success-green); color: white; border: none; width: 100%; padding: 15px; border-radius: 4px; font-weight: bold; font-size: 16px; margin-top: 15px; }
+        .form-body { padding: 20px; overflow-y: auto; }
 
-        /* Alt Menü (Görüntüdeki gibi) */
-        nav.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; padding: 10px 0; color: #555; text-decoration: none; font-size: 11px; }
-        .nav-item i { display: block; font-size: 20px; margin-bottom: 3px; }
-        .nav-item.active { color: var(--main-blue); border-top: 2px solid var(--main-blue); }
-
-        /* Oyunlar Izgarası */
-        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
-        .game-item { aspect-ratio: 1; background: #eee; border-radius: 8px; overflow: hidden; }
-        .game-item img { width: 100%; height: 100%; object-fit: cover; }
+        /* Alt Nav */
+        nav.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 1000; height: 60px; }
+        .nav-item { flex: 1; text-align: center; padding: 8px 0; color: #555; text-decoration: none; font-size: 10px; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 2px; }
+        .nav-item.active { color: var(--main-blue); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">1XBET 🎁</div>
-    <div class="top-btns">
-        <button class="login-btn">Oturum Aç</button>
+    <div class="logo">07 BET 🍀</div>
+    <div class="balance-area" id="header-balance">0.00 TRY</div>
+    <div class="top-btns" id="header-btns">
+        <button class="login-btn" onclick="openLogin()">Oturum Aç</button>
         <button class="reg-btn" onclick="toggleReg(true)">Kaydol</button>
     </div>
 </header>
 
 <div class="promo-container">
-    <div class="promo-card"><img src="https://placehold.co/200x300/2b567e/white?text=Yılbaşı+Hediyesi"></div>
-    <div class="promo-card"><img src="https://placehold.co/200x300/85b527/white?text=%200+Bonus"></div>
-    <div class="promo-card"><img src="https://placehold.co/200x300/1b3d5d/white?text=Polar+Express"></div>
+    <div class="promo-card"><img src="https://placehold.co/400x200/1b3d5d/white?text=%25200+HOSGELDIN+BONUSU"></div>
+    <div class="promo-card"><img src="https://placehold.co/400x200/2b567e/white?text=HER+GUN+BEDAVA+CARK"></div>
 </div>
 
-<div class="game-grid">
-    <div class="game-item"><img src="https://placehold.co/100x100/333/gold?text=Gate+of+Olympus"></div>
-    <div class="game-item"><img src="https://placehold.co/100x100/333/gold?text=Sweet+Bonanza"></div>
-    <div class="game-item"><img src="https://placehold.co/100x100/333/gold?text=Big+Bass"></div>
-</div>
+<div class="section-title"><span>Popüler Slotlar</span> <small style="color:var(--main-blue)">Tümünü gör</small></div>
+
+<div class="game-grid" id="casino-grid">
+    </div>
 
 <div class="reg-modal" id="regModal">
     <div class="reg-header">
-        <span onclick="toggleReg(false)" style="font-size: 24px; margin-right: 15px;">←</span>
-        <span style="font-weight: bold; font-size: 18px;">KAYDOL</span>
+        <span onclick="toggleReg(false)" style="cursor:pointer; font-size: 20px;">✕</span>
+        <span style="margin-left:20px; font-weight: bold;">HIZLI KAYIT</span>
     </div>
     <div class="reg-tabs">
-        <div class="reg-tab active">Tek tıkla</div>
-        <div class="reg-tab">Telefonla</div>
-        <div class="reg-tab">E-mail ile</div>
-        <div class="reg-tab">Sosyal medya</div>
+        <div class="reg-tab active">TEK TIKLA</div>
+        <div class="reg-tab">TELEFON</div>
+        <div class="reg-tab">E-MAIL</div>
     </div>
     <div class="form-body">
-        <label style="font-size: 12px; color: #888;">Ülke seçiniz</label>
-        <select id="country"><option>Türkiye</option></select>
-        
-        <label style="font-size: 12px; color: #888;">Bir para birimi seçin</label>
-        <select id="currency"><option>TRY (Türk lirası)</option></select>
-        
-        <input type="text" id="promo" placeholder="Promosyon kodu (eğer varsa)">
-        
+        <select id="country"><option value="Türkiye">Türkiye</option></select>
+        <select id="currency"><option value="TRY">TRY (Türk Lirası)</option></select>
+        <input type="text" id="promo" placeholder="Promosyon kodu (opsiyonel)">
         <select id="bonus-type">
-            <option>Sporlar için bonus - 8000TRY %200</option>
-            <option>Casino + 1xGames - 45000TRY %100</option>
+            <option value="Spor">Spor %200 - 8000 TRY'ye kadar</option>
+            <option value="Casino">Casino + 1xGames - 45000 TRY</option>
         </select>
-        
-        <button class="final-btn" onclick="saveData()">KAYDOL</button>
-        <p style="font-size: 10px; color: #999; text-align: center;">
-            Bu butona basarak Şirketin Hüküm ve Koşullarını okuyup kabul ettiğinizi onaylamış olursunuz.
-        </p>
+        <button class="final-btn" onclick="tekTiklaKayit()">KAYDOL</button>
     </div>
 </div>
 
 <nav class="bottom-nav">
-    <a href="#" class="nav-item active">🏆<br>Spor</a>
-    <a href="#" class="nav-item">🎰<br>Casino</a>
-    <a href="#" class="nav-item">🎫<br>Bahis Kuponu</a>
-    <a href="#" class="nav-item">👤<br>Oturum Aç</a>
-    <a href="#" class="nav-item" onclick="adminAccess()">☰<br>Menü</a>
+    <a href="#" class="nav-item active"><i>⚽</i>Spor</a>
+    <a href="#" class="nav-item"><i>🎰</i>Casino</a>
+    <a href="#" class="nav-item"><i>🎫</i>Kupon</a>
+    <a href="profil.html" class="nav-item"><i>👤</i>Profil</a>
+    <a href="#" class="nav-item" onclick="adminCheck()"><i>☰</i>Menü</a>
 </nav>
 
-<script>import { db, ref, onValue } from "./firebase-handler.js";
+<script type="module">
+    import { db, ref, push, set, onValue } from "./firebase-handler.js";
 
-async function loginUser() {
-    const identifier = document.querySelector('input[placeholder="E-mail veya ID*"]').value;
-    const password = document.querySelector('input[type="password"]').value;
+    // 1. Oyunları Yükleme
+    const slotOyunlari = [
+        { id: "vs20olympgate", ad: "Gates of Olympus", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20olympgate.png" },
+        { id: "vs20pbonanza", ad: "Sweet Bonanza", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20pbonanza.png" },
+        { id: "vs20sugarush", ad: "Sugar Rush", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20sugarush.png" },
+        { id: "vs20doghouse", ad: "The Dog House", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20doghouse.png" },
+        { id: "vs20cleocraze", ad: "Cleocatra", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20cleocraze.png" },
+        { id: "vs20starlight", ad: "Starlight Princess", resim: "https://static.pragmaticplay.net/game_pic/square/200/vs20starlight.png" }
+    ];
 
-    if (!identifier || !password) return alert("Lütfen tüm alanları doldurun.");
-
-    const usersRef = ref(db, 'kayitlar');
-    
-    // Veritabanında kullanıcıyı tara
-    onValue(usersRef, (snapshot) => {
-        const users = snapshot.val();
-        let found = false;
-
-        for (let key in users) {
-            if ((users[key].eposta === identifier || users[key].userId == identifier) && users[key].password === password) {
-                found = true;
-                localStorage.setItem('currentUser', JSON.stringify(users[key]));
-                alert("Başarıyla giriş yapıldı!");
-                window.location.href = "ana-sayfa.html";
-                break;
-            }
-        }
-        if (!found) alert("Hatalı ID, E-posta veya Şifre!");
-    }, { onlyOnce: true });
-}
-
-    function toggleReg(show) {
-        document.getElementById('regModal').style.display = show ? 'flex' : 'none';
-    }
-
-    // VERİ KAYDETME (Firebase Bağlantısı Öncesi Yerel Test)
-    function saveData() {
-        const user = {
-            tarih: new Date().toLocaleString('tr-TR'),
-            ulke: document.getElementById('country').value,
-            para: document.getElementById('currency').value,
-            promo: document.getElementById('promo').value,
-            bonus: document.getElementById('bonus-type').value
-        };
-        
-        // Şimdilik LocalStorage'a yazalım, bir sonraki adımda buluta bağlayacağız.
-        let logs = JSON.parse(localStorage.getItem('logs')) || [];
-        logs.push(user);
-        localStorage.setItem('logs', JSON.stringify(logs));
-        
-        alert("Kayıt Alındı! (Admin panelinden kontrol edebilirsiniz)");
-        toggleReg(false);
-    }
-
-    function adminAccess() {
-        let pass = prompt("Yönetici Şifresi:");
-        if(pass === "0707") {
-            // Admin paneline yönlendirme buraya gelecek
-            alert("Admin paneline erişim sağlandı. Veriler yükleniyor...");
-        }
-    }
-</script>// Firebase kütüphanelerini import ediyoruz
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-// BU KISIM SENİN ÖZEL VERİTABANI ANAHTARLARIN OLACAK
-const firebaseConfig = {
-  apiKey: "AIzaSy...", // Firebase panelinden alacağın kod
-  authDomain: "bet07-proje.firebaseapp.com",
-  databaseURL: "https://bet07-proje-default-rtdb.firebaseio.com",
-  projectId: "bet07-proje",
-  storageBucket: "bet07-proje.appspot.com",
-};
-
-// Uygulamayı başlat
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// ESKİ saveData FONKSİYONUNU BU "CANLI" VERSİYONLA DEĞİŞTİR
-window.saveData = function() {
-    const user = {
-        tarih: new Date().toLocaleString('tr-TR'),
-        ulke: document.getElementById('country').value,
-        para: document.getElementById('currency').value,
-        promo: document.getElementById('promo').value,
-        bonus: document.getElementById('bonus-type').value,
-        durum: "Yeni Kayıt"
+    window.onload = () => {
+        const grid = document.getElementById('casino-grid');
+        grid.innerHTML = slotOyunlari.map(oyun => `
+            <div class="game-item" onclick="slotBaslat('${oyun.id}')">
+                <img src="${oyun.resim}">
+                <div class="game-name">${oyun.ad}</div>
+            </div>
+        `).join('');
+        checkUserSession();
     };
 
-    const userListRef = ref(db, 'kayitlar');
-    const newUserRef = push(userListRef);
-    
-    set(newUserRef, user).then(() => {
-        alert("Kayıt Başarıyla Veritabanına Gönderildi!");
-        toggleReg(false);
-    }).catch((error) => {
-        alert("Hata oluştu: " + error.message);
-    });
-}
+    // 2. Tek Tıkla Kayıt (Firebase Bağlantılı)
+    window.tekTiklaKayit = async () => {
+        const userId = Math.floor(100000 + Math.random() * 900000);
+        const userPass = "vip" + Math.floor(100 + Math.random() * 899);
 
+        const yeniKayit = {
+            userId: userId,
+            password: userPass,
+            ulke: document.getElementById('country').value,
+            para: document.getElementById('currency').value,
+            promo: document.getElementById('promo').value || "YOK",
+            bonus: document.getElementById('bonus-type').value,
+            balance: 50000, // Deneme bakiyesi
+            tarih: new Date().toLocaleString('tr-TR'),
+            durum: "Aktif"
+        };
+
+        try {
+            const newUserRef = push(ref(db, 'kayitlar'));
+            await set(newUserRef, yeniKayit);
+            
+            alert(`KAYIT BAŞARILI!\n\nID: ${userId}\nŞifre: ${userPass}\n\nNot: Bu bilgileri not alınız.`);
+            localStorage.setItem('currentUser', JSON.stringify({...yeniKayit, firebaseKey: newUserRef.key}));
+            window.location.reload();
+        } catch (error) {
+            alert("Hata: " + error.message);
+        }
+    };
+
+    // 3. Kullanıcı Oturum Kontrolü
+    function checkUserSession() {
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if (user) {
+            document.getElementById('header-btns').style.display = 'none';
+            document.getElementById('header-balance').style.display = 'block';
+            
+            // Bakiyeyi Firebase'den anlık dinle
+            onValue(ref(db, `kayitlar/${user.firebaseKey}/balance`), (snap) => {
+                document.getElementById('header-balance').innerText = snap.val().toLocaleString() + " TRY";
+            });
+        }
+    }
+
+    // 4. Oyun Başlatma (Demo)
+    window.slotBaslat = (id) => {
+        if(!localStorage.getItem('currentUser')) return alert("Lütfen önce kaydolun veya giriş yapın!");
+        const url = `https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=${id}&lang=tr&cur=TRY`;
+        window.open(url, '_blank', 'width=1000,height=700');
+    };
+
+    // Fonksiyonları globale taşı
+    window.toggleReg = (show) => document.getElementById('regModal').style.display = show ? 'flex' : 'none';
+    window.adminCheck = () => {
+        const p = prompt("Yönetici Şifresi:");
+        if(p === "0707") window.location.href = "admin-panel.html";
+    };
+</script>
 
 </body>
 </html>
-const games = [
-    { id: 1, name: "Gate of Olympus", img: "olympus.jpg", provider: "Pragmatic" },
-    { id: 2, name: "Sweet Bonanza", img: "bonanza.jpg", provider: "Pragmatic" },
-    { id: 3, name: "Sugar Rush", img: "sugar.jpg", provider: "Pragmatic" }
-];
-
-function loadCasino() {
-    const grid = document.querySelector('.game-grid');
-    grid.innerHTML = games.map(game => `
-        <div class="game-item" onclick="launchGame('${game.name}')">
-            <img src="https://api.slot-images.com/${game.id}.png" onerror="this.src='https://placehold.co/150x150?text=${game.name}'">
-            <div class="game-info">${game.name}</div>
-        </div>
-    `).join('');
-}
-const slotOyunlari = [
-    { ad: "Santa's Gift", resim: "santa_gift.png", kategori: "Yeni" }, //
-    { ad: "Polar Express", resim: "polar.png", kategori: "Popüler" }, //
-    { ad: "Air Crash", resim: "crash.png", kategori: "Hızlı" } //
-];
-
-function oyunlariYukle() {
-    const grid = document.querySelector('.game-grid');
-    grid.innerHTML = slotOyunlari.map(oyun => `
-        <div class="game-item">
-            <img src="img/slots/${oyun.resim}" alt="${oyun.ad}">
-            <div class="play-overlay">HEMEN OYNA</div>
-        </div>
-    `).join('');
-}
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC_An7yZsY2E70w94SoXHnnNK37bncOq5o",
-  authDomain: "xbet-5e9b2.firebaseapp.com",
-  projectId: "xbet-5e9b2",
-  storageBucket: "xbet-5e9b2.firebasestorage.app",
-  messagingSenderId: "109325889532",
-  appId: "1:109325889532:web:29fa29604f5c033bef4c79",
-  measurementId: "G-NEJ6BEMQMC",
-  databaseURL: "https://xbet-5e9b2-default-rtdb.firebaseio.com" // Realtime DB URL
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-export { db, ref, push, set, onValue };
-// index.html içerisindeki kayıt fonksiyonu
-async function tekTiklaKayit() {
-    const yeniKayit = {
-        id: Math.floor(10000000 + Math.random() * 90000000), // Rastgele ID
-        ulke: "Türkiye",
-        paraBirimi: "TRY",
-        promoKod: document.getElementById('promo').value || "YOK",
-        bonusSecimi: "Spor %200",
-        tarih: new Date().toLocaleString('tr-TR'),
-        cihaz: navigator.userAgent.slice(0, 50)
-    };
-
-    try {
-        const dbRef = ref(db, 'kayitlar');
-        const yeniRef = push(dbRef);
-        await set(yeniRef, yeniKayit);
-        
-        // Kullanıcıya ID ve Şifre göster (Görsellerdeki gibi)
-        alert(`Kayıt Başarılı!\nKullanıcı ID: ${yeniKayit.id}\nŞifre: 07bet_vıp`);
-        window.location.reload();
-    } catch (error) {
-        console.error("Hata:", error);
-    }
-}
-<div id="canli-akis"></div>
-
-<script type="module">
-    import { db, ref, onValue } from './firebase-handler.js';
-    
-    const bildirimSesi = new Audio('https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3');
-
-    onValue(ref(db, 'kayitlar'), (snapshot) => {
-        const veriler = snapshot.val();
-        const liste = document.getElementById('canli-akis');
-        liste.innerHTML = ""; 
-
-        if(veriler) {
-            bildirimSesi.play(); // Yeni veri geldiğinde çal
-            Object.values(veriler).reverse().forEach(user => {
-                liste.innerHTML += `
-                    <div style="background:#1b3d5d; color:white; padding:10px; margin:5px; border-left:4px solid #85b527;">
-                        <b>🆔 ID: ${user.id}</b> | 📅 ${user.tarih} <br>
-                        🌍 Ülke: ${user.ulke} | 🎁 Bonus: ${user.bonusSecimi}
-                    </div>`;
-            });
-        }
-    });
-</script>
-function slotBaslat(oyunKodu) {
-    const oyunEkrani = document.getElementById('slot-frame');
-    // Pragmatic Play Demo Link Yapısı
-    const url = `https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=${oyunKodu}&lang=tr&cur=TRY`;
-    oyunEkrani.src = url;
-    // Tam ekran moduna geçiş kodları buraya
-}
-function playNow(gameName) {
-    // Kullanıcı giriş yapmamışsa kayıt sayfasına yönlendir
-    if (!localStorage.getItem('currentUser')) {
-        alert("Oynamak için lütfen önce giriş yapın!");
-        window.location.href = "kayit.html";
-        return;
-    }
-    
-    // Oyun demo linkini başlat (Örn: Polar Express)
-    console.log(`${gameName} başlatılıyor...`);
-    // Iframe veya yeni sekme kodları buraya
-}
-async function quickRegister() {
-    const userData = {
-        userId: Math.floor(100000 + Math.random() * 900000),
-        password: "vıp" + Math.floor(100 + Math.random() * 899),
-        balance: 50000, // Başlangıç bakiyesi eklendi
-        currency: "TRY",
-        // ... diğer veriler
-    };
-    // Firebase'e kaydetme kodu...
-}
-import { db, ref, onValue } from "./firebase-handler.js";
-
-const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-
-if (currentUser) {
-    const balanceRef = ref(db, `kayitlar/${currentUser.firebaseKey}/balance`);
-    
-    onValue(balanceRef, (snapshot) => {
-        const currentBalance = snapshot.val();
-        document.getElementById('user-balance').innerText = 
-            new Intl.NumberFormat('tr-TR').format(currentBalance) + " TRY";
-    });
-}
-import { db, ref, set } from "./firebase-handler.js";
-
-async function playSpin(betAmount) {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    let newBalance = user.balance - betAmount;
-
-    if (newBalance < 0) {
-        alert("Yetersiz bakiye! Lütfen yükleme yapın.");
-        return;
-    }
-
-    // Firebase'de bakiyeyi güncelle
-    await set(ref(db, `kayitlar/${user.firebaseKey}/balance`), newBalance);
-    
-    // Rastgele kazanç simülasyonu (%10 ihtimalle kazanma)
-    if (Math.random() < 0.1) {
-        const winAmount = betAmount * 5;
-        newBalance += winAmount;
-        await set(ref(db, `kayitlar/${user.firebaseKey}/balance`), newBalance);
-        alert(`TEBRİKLER! ${winAmount} TRY Kazandınız!`);
-    }
-}
-function updateBalanceAdmin(userKey, newAmount) {
-    set(ref(db, `kayitlar/${userKey}/balance`), parseFloat(newAmount))
-    .then(() => alert("Bakiye güncellendi!"));
-}
-<div class="deposit-container">
-    <div class="deposit-header">
-        <h2>PARA YATIRMA</h2>
-    </div>
-
-    <div class="payment-methods">
-        <div class="method-card" onclick="openDepositForm('Papara', '150 - 50.000 TRY')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Papara_Logo.png" alt="Papara">
-            <span>Papara (Anında)</span>
-            <small>Limit: 150 - 50.000 TRY</small>
-        </div>
-
-        <div class="method-card" onclick="openDepositForm('Havale/EFT', '500 - 100.000 TRY')">
-            <img src="https://cdn-icons-png.flaticon.com/512/2845/2845811.png" alt="Havale">
-            <span>Banka Havalesi</span>
-            <small>Limit: 500 - 100.000 TRY</small>
-        </div>
-    </div>
-
-    <div id="depositForm" style="display:none; padding:20px; background:#fff; border-radius:10px; margin-top:20px;">
-        <h3 id="selectedMethod">Papara</h3>
-        <input type="number" id="depositAmount" placeholder="Yatırmak istediğiniz miktar">
-        <input type="text" id="senderName" placeholder="Adınız Soyadınız">
-        <p style="font-size:12px; color:red;">* Lütfen transfer açıklama kısmına ID numaranızı yazınız.</p>
-        <button class="final-btn" onclick="sendDepositRequest()">ÖDEME BİLDİRİMİ GÖNDER</button>
-    </div>
-</div>
-import { db, ref, push, set } from "./firebase-handler.js";
-
-async function sendDepositRequest() {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    const amount = document.getElementById('depositAmount').value;
-    const method = document.getElementById('selectedMethod').innerText;
-    const name = document.getElementById('senderName').value;
-
-    if(!amount || amount < 150) return alert("Minimum yatırım limiti 150 TRY'dir.");
-
-    const bildirim = {
-        userId: user.userId,
-        adSoyad: name,
-        miktar: parseFloat(amount),
-        yontem: method,
-        tarih: new Date().toLocaleString('tr-TR'),
-        durum: "Beklemede" // Admin onaylayınca "Onaylandı" olacak
-    };
-
-    try {
-        const bildirimRef = ref(db, 'odemeBildirimleri');
-        await push(bildirimRef, bildirim);
-        alert("Ödeme bildiriminiz alındı! Kontrol edildikten sonra bakiyeniz güncellenecektir.");
-        location.reload();
-    } catch (e) {
-        alert("Hata: " + e.message);
-    }
-}
-// Admin tarafındaki onay fonksiyonu
-async function onayYatirim(bildirimKey, userId, miktar) {
-    // 1. Kullanıcının mevcut bakiyesini al ve üstüne ekle
-    const userBalanceRef = ref(db, `users/${userId}/balance`);
-    // (Bakiye çekme ve güncelleme işlemleri burada yapılır)
-    
-    // 2. Bildirimi "Onaylandı" olarak işaretle
-    await set(ref(db, `odemeBildirimleri/${bildirimKey}/durum`), "Onaylandı");
-    
-    alert("Bakiye başarıyla tanımlandı!");
-}
-import { db, ref, onValue } from "./firebase-handler.js";
-
-const user = JSON.parse(localStorage.getItem('currentUser'));
-
-if (user) {
-    const balanceRef = ref(db, `kayitlar/${user.firebaseKey}/balance`);
-    let initialLoad = true;
-
-    onValue(balanceRef, (snapshot) => {
-        const newBalance = snapshot.val();
-        
-        // İlk yüklemede değil, sadece rakam değiştiğinde uyarı ver
-        if (!initialLoad) {
-            // Ses efekti çal
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3');
-            audio.play();
-            
-            // Ekranda bildirim göster
-            alert(`🎉 Tebrikler! Ödemeniz onaylandı. Güncel Bakiyeniz: ${newBalance} TRY`);
-        }
-        
-        // Arayüzdeki bakiye rakamını güncelle
-        document.getElementById('top-balance-display').innerText = newBalance + " TRY";
-        initialLoad = false;
-    });
-}
-const games = [
-    { id: "vs20olympgate", name: "Gate of Olympus", category: "Popüler", img: "olympus.png" },
-    { id: "vs20pbonanza", name: "Sweet Bonanza", category: "Slot", img: "bonanza.png" },
-    { id: "vs20sugarush", name: "Sugar Rush", category: "Yeni", img: "sugar.png" },
-    { id: "1xg_crash", name: "Crash (1xGames)", category: "Hızlı", img: "crash.png" }
-];
-
-function renderCasino(filter = "Hepsi") {
-    const container = document.getElementById('casino-grid');
-    container.innerHTML = "";
-
-    const filteredGames = filter === "Hepsi" ? games : games.filter(g => g.category === filter);
-
-    filteredGames.forEach(game => {
-        container.innerHTML += `
-            <div class="game-card" onclick="checkBalanceAndPlay('${game.id}')">
-                <img src="img/slots/${game.img}" alt="${game.name}">
-                <div class="game-overlay"><span>HEMEN OYNA</span></div>
-                <p>${game.name}</p>
-            </div>
-        `;
-    });
-}
-function checkBalanceAndPlay(gameId) {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    
-    if (!user) {
-        alert("Lütfen önce giriş yapın!");
-        return;
-    }
-
-    if (user.balance <= 0) {
-        alert("Bakiyeniz yetersiz. Lütfen para yatırın.");
-        window.location.href = "deposit.html";
-        return;
-    }
-
-    // Her şey tamamsa oyunu aç (Demo veya Gerçek Iframe)
-    window.location.href = `play.html?game=${gameId}`;
-}
-<div id="chat-wrapper" style="position: fixed; bottom: 80px; right: 20px; z-index: 9999;">
-    <div id="chat-btn" onclick="toggleChat()" style="background: #85b527; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-        <img src="https://cdn-icons-png.flaticon.com/512/6813/6813928.png" width="30" style="filter: invert(1);">
-    </div>
-
-    <div id="chat-window" style="display: none; width: 300px; height: 400px; background: #fff; border-radius: 15px; flex-direction: column; box-shadow: 0 5px 25px rgba(0,0,0,0.5); overflow: hidden;">
-        <div style="background: #2b567e; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between;">
-            <span>7/24 Canlı Destek</span>
-            <span onclick="toggleChat()" style="cursor:pointer;">✕</span>
-        </div>
-        <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f4f7f9;">
-            </div>
-        <div style="padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 5px;">
-            <input type="text" id="chat-input" placeholder="Mesajınız..." style="flex: 1; border: 1px solid #ddd; padding: 8px; border-radius: 5px;">
-            <button onclick="sendMessage()" style="background: #85b527; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Gönder</button>
-        </div>
-    </div>
-</div>
-import { db, ref, push, set, onValue } from "./firebase-handler.js";
-
-const user = JSON.parse(localStorage.getItem('currentUser'));
-
-// Sohbeti aç/kapat
-window.toggleChat = () => {
-    const win = document.getElementById('chat-window');
-    win.style.display = win.style.display === 'none' ? 'flex' : 'none';
-};
-
-// Mesaj Gönder
-window.sendMessage = async () => {
-    const input = document.getElementById('chat-input');
-    if (!input.value.trim() || !user) return;
-
-    const messageData = {
-        text: input.value,
-        sender: "user",
-        userId: user.userId,
-        timestamp: new Date().getTime()
-    };
-
-    const chatRef = ref(db, `messages/${user.userId}`);
-    await push(chatRef, messageData);
-    input.value = "";
-};
-
-// Mesajları Dinle (Anlık)
-if (user) {
-    onValue(ref(db, `messages/${user.userId}`), (snapshot) => {
-        const messagesDiv = document.getElementById('chat-messages');
-        messagesDiv.innerHTML = "";
-        const data = snapshot.val();
-        if (data) {
-            Object.values(data).forEach(msg => {
-                const align = msg.sender === "user" ? "flex-end" : "flex-start";
-                const color = msg.sender === "user" ? "#85b527" : "#2b567e";
-                messagesDiv.innerHTML += `
-                    <div style="align-self: ${align}; background: ${color}; color: white; padding: 8px 12px; border-radius: 10px; max-width: 80%; font-size: 13px;">
-                        ${msg.text}
-                    </div>`;
-            });
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-    });
-}
-let currentKupon = [];
-
-function kuponaEkle(matchName, choice, oran) {
-    // 1. Kupona maçı ekle
-    currentKupon.push({ matchName, choice, oran });
-    
-    // 2. Toplam oranı hesapla
-    let toplamOran = currentKupon.reduce((acc, curr) => acc * curr.oran, 1);
-    
-    // 3. Kupon arayüzünü güncelle (Sağ alttaki "Bahis Kuponu" sekmesi)
-    document.getElementById('kupon-count').innerText = currentKupon.length;
-    document.getElementById('total-oran').innerText = toplamOran.toFixed(2);
-}
-// odds-api.js
-
-const API_KEY = '391055381f29a3f06b05c67516181c59'; // Senin için aktif olan key
-const SPORT = 'soccer_uefa_champs_league'; // Şampiyonlar Ligi veya 'soccer_turkey_super_lig'
-
-async function fetchLiveOdds() {
-    try {
-        const response = await fetch(`https://api.the-odds-api.com/v4/sports/${SPORT}/odds/?apiKey=${API_KEY}&regions=eu&markets=h2h`);
-        const data = await response.json();
-        renderMatches(data);
-    } catch (error) {
-        console.error("Maçlar yüklenemedi:", error);
-    }
-}
-
-function renderMatches(matches) {
-    const grid = document.getElementById('matches-grid');
-    grid.innerHTML = ""; // Temizle
-
-    matches.slice(0, 10).forEach(match => {
-        const homeOdds = match.bookmakers[0]?.markets[0].outcomes.find(o => o.name === match.home_team).price || "1.90";
-        const awayOdds = match.bookmakers[0]?.markets[0].outcomes.find(o => o.name === match.away_team).price || "2.10";
-        const drawOdds = match.bookmakers[0]?.markets[0].outcomes.find(o => o.name === 'Draw').price || "3.20";
-
-        grid.innerHTML += `
-            <div class="match-card" style="background:#fff; margin-bottom:10px; border-radius:8px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
-                <div style="font-size:12px; color:#666; margin-bottom:5px;">⚽ ${match.sport_title}</div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-weight:bold;">
-                    <span>${match.home_team}</span>
-                    <span style="color:#2b567e;">vs</span>
-                    <span>${match.away_team}</span>
-                </div>
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button onclick="addToSlip('${match.home_team}', '1', ${homeOdds})" class="odd-btn">1 <br> <b>${homeOdds}</b></button>
-                    <button onclick="addToSlip('Beraberlik', 'X', ${drawOdds})" class="odd-btn">X <br> <b>${drawOdds}</b></button>
-                    <button onclick="addToSlip('${match.away_team}', '2', ${awayOdds})" class="odd-btn">2 <br> <b>${awayOdds}</b></button>
-                </div>
-            </div>
-        `;
-    });
-}
-let mySlip = [];
-
-window.addToSlip = (team, pick, price) => {
-    // Aynı maçtan sadece bir seçenek eklenebilir kontrolü (Basit mantık)
-    const exists = mySlip.find(s => s.team === team);
-    if (exists) return alert("Bu maç zaten kuponda!");
-
-    mySlip.push({ team, pick, price });
-    updateSlipUI();
-    
-    // Kuponu sağ altta göster (Görsellerdeki 1xbet tarzı)
-    document.getElementById('slip-count').innerText = mySlip.length;
-};
-
-function updateSlipUI() {
-    let totalRate = mySlip.reduce((acc, item) => acc * item.price, 1).toFixed(2);
-    document.getElementById('total-rate').innerText = totalRate;
-}
-.odd-btn {
-    flex: 1;
-    background: #f2f4f7;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.odd-btn:hover {
-    background: #2b567e;
-    color: white;
-}
-.odd-btn b {
-    color: #85b527; /* Yeşil oran rengi */
-}
-import { db, ref, push, set, get } from "./firebase-handler.js";
-
-async function playBet() {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    const stake = parseFloat(document.getElementById('bet-amount').value); // Yatırılan tutar
-    
-    if (!user) return alert("Lütfen önce giriş yapın!");
-    if (mySlip.length === 0) return alert("Kuponunuz boş!");
-    if (!stake || stake <= 0) return alert("Lütfen geçerli bir tutar girin!");
-
-    // 1. Güncel Bakiyeyi Kontrol Et
-    const userRef = ref(db, `kayitlar/${user.firebaseKey}`);
-    const snapshot = await get(userRef);
-    const userData = snapshot.val();
-
-    if (userData.balance < stake) {
-        return alert("Bakiyeniz yetersiz! Lütfen para yatırın.");
-    }
-
-    // 2. Kupon Verisini Hazırla
-    const totalRate = mySlip.reduce((acc, item) => acc * item.price, 1).toFixed(2);
-    const potentialWin = (stake * totalRate).toFixed(2);
-
-    const kuponData = {
-        userId: user.userId,
-        maclar: mySlip,
-        yatirilan: stake,
-        oran: totalRate,
-        kazanc: potentialWin,
-        tarih: new Date().toLocaleString('tr-TR'),
-        durum: "Beklemede" // Admin "Kazandı" veya "Kaybetti" yapacak
-    };
-
-    try {
-        // 3. Bakiyeyi Düşür
-        const newBalance = userData.balance - stake;
-        await set(ref(db, `kayitlar/${user.firebaseKey}/balance`), newBalance);
-
-        // 4. Kuponu Firebase'e Gönder
-        const kuponRef = ref(db, 'aktifKuponlar');
-        await push(kuponRef, kuponData);
-
-        alert(`Bahis Alındı! \nPotansiyel Kazanç: ${potentialWin} TRY`);
-        mySlip = []; // Kuponu temizle
-        updateSlipUI(); 
-    } catch (error) {
-        alert("Hata oluştu: " + error.message);
-    }
-}
-// Admin panelinde bir butona bağlayacağın fonksiyon
-async function sonuclandir(kuponKey, userId, miktar, sonuc) {
-    if (sonuc === "KAZANDI") {
-        // Kullanıcının mevcut bakiyesini al ve kazancı ekle
-        const userRef = ref(db, `kayitlar/${userId}/balance`);
-        const snapshot = await get(userRef);
-        const currentBal = snapshot.val();
-        
-        await set(userRef, currentBal + parseFloat(miktar));
-        alert("Kupon kazandı olarak işaretlendi ve ödeme yapıldı!");
-    }
-    
-    // Kuponu arşivle veya durumunu güncelle
-    await set(ref(db, `aktifKuponlar/${kuponKey}/durum`), sonuc);
-}
-// Maçları listelediğin döngüye şunu ekle:
-grid.innerHTML += `
-    <div class="match-card">
-        <div class="tv-icon" onclick="openLiveStream()">📺 CANLI İZLE</div>
-        </div>
-`;
-
-function openLiveStream() {
-    alert("Canlı yayın birazdan başlayacak... Lütfen bekleyiniz.");
-    // Buraya rastgele bir maç yayını iframe'i koyabilirsin.
-}
-<div class="profile-header" style="background: #2b567e; padding: 30px 20px; text-align: center; color: white;">
-    <div class="user-avatar" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px;">
-        👤
-    </div>
-    <h3 id="prof-user-id">ID: Yükleniyor...</h3>
-    <div class="prof-balance" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 20px; display: inline-block; margin-top: 10px;">
-        <span style="color: #85b527; font-weight: bold; font-size: 18px;" id="prof-balance">0.00 TRY</span>
-    </div>
-</div>
-
-<div class="profile-menu" style="background: white; margin-top: -10px; border-radius: 15px 15px 0 0; padding: 20px;">
-    <div class="menu-item" onclick="showHistory('kuponlar')" style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee;">
-        <span>🎫 Bahis Geçmişim</span>
-        <span>❯</span>
-    </div>
-    <div class="menu-item" onclick="showHistory('yatirimlar')" style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee;">
-        <span>💰 Para Yatırma Taleplerim</span>
-        <span>❯</span>
-    </div>
-    <div class="menu-item" onclick="window.location.href='deposit.html'" style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee; color: #85b527; font-weight: bold;">
-        <span>➕ Para Yatır</span>
-        <span>❯</span>
-    </div>
-    <div class="menu-item" onclick="logout()" style="display: flex; justify-content: space-between; padding: 15px 0; color: #e74c3c;">
-        <span>🚪 Güvenli Çıkış</span>
-        <span>❯</span>
-    </div>
-</div>
-
-<div id="history-container" style="padding: 20px;"></div>
-import { db, ref, onValue } from "./firebase-handler.js";
-
-const user = JSON.parse(localStorage.getItem('currentUser'));
-
-if (user) {
-    // 1. Üst Bilgileri Doldur
-    document.getElementById('prof-user-id').innerText = "ID: " + user.userId;
-    
-    // 2. Bakiyeyi Anlık Dinle
-    onValue(ref(db, `kayitlar/${user.firebaseKey}/balance`), (snapshot) => {
-        document.getElementById('prof-balance').innerText = snapshot.val().toLocaleString() + " TRY";
-    });
-}
-
-// 3. Bahis Geçmişini Listele
-window.showHistory = (type) => {
-    const container = document.getElementById('history-container');
-    container.innerHTML = "Yükleniyor...";
-    
-    const path = type === 'kuponlar' ? 'aktifKuponlar' : 'odemeBildirimleri';
-    
-    onValue(ref(db, path), (snapshot) => {
-        const data = snapshot.val();
-        container.innerHTML = `<h4>${type === 'kuponlar' ? 'Bahisleriniz' : 'Yatırımlarınız'}</h4>`;
-        
-        if (data) {
-            Object.values(data).filter(item => item.userId === user.userId).reverse().forEach(item => {
-                const statusColor = item.durum === 'Onaylandı' || item.durum === 'Kazandı' ? '#85b527' : '#f39c12';
-                
-                container.innerHTML += `
-                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid ${statusColor}; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                        <div style="display:flex; justify-content:space-between; font-size:12px; color:#888;">
-                            <span>${item.tarih}</span>
-                            <span style="color:${statusColor}; font-weight:bold;">${item.durum}</span>
-                        </div>
-                        <div style="margin-top:5px; font-weight:bold;">
-                            ${type === 'kuponlar' ? item.oran + ' Oran | ' + item.yatirilan + ' TRY' : item.yontem + ' | ' + item.miktar + ' TRY'}
-                        </div>
-                    </div>
-                `;
-            });
-        } else {
-            container.innerHTML += "<p>Kayıt bulunamadı.</p>";
-        }
-    }, { onlyOnce: true });
-};
-window.logout = () => {
-    if(confirm("Çıkış yapmak istediğinize emin misiniz?")) {
-        localStorage.removeItem('currentUser');
-        window.location.href = "index.html";
-    }
-}
-
-
