@@ -195,4 +195,19 @@ function loadCasino() {
         </div>
     `).join('');
 }
+const slotOyunlari = [
+    { ad: "Santa's Gift", resim: "santa_gift.png", kategori: "Yeni" }, //
+    { ad: "Polar Express", resim: "polar.png", kategori: "Popüler" }, //
+    { ad: "Air Crash", resim: "crash.png", kategori: "Hızlı" } //
+];
+
+function oyunlariYukle() {
+    const grid = document.querySelector('.game-grid');
+    grid.innerHTML = slotOyunlari.map(oyun => `
+        <div class="game-item">
+            <img src="img/slots/${oyun.resim}" alt="${oyun.ad}">
+            <div class="play-overlay">HEMEN OYNA</div>
+        </div>
+    `).join('');
+}
 
