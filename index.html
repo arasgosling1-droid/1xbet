@@ -138,7 +138,61 @@
             alert("Admin paneline erişim sağlandı. Veriler yükleniyor...");
         }
     }
-</script>
+</script>// Firebase kütüphanelerini import ediyoruz
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+// BU KISIM SENİN ÖZEL VERİTABANI ANAHTARLARIN OLACAK
+const firebaseConfig = {
+  apiKey: "AIzaSy...", // Firebase panelinden alacağın kod
+  authDomain: "bet07-proje.firebaseapp.com",
+  databaseURL: "https://bet07-proje-default-rtdb.firebaseio.com",
+  projectId: "bet07-proje",
+  storageBucket: "bet07-proje.appspot.com",
+};
+
+// Uygulamayı başlat
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ESKİ saveData FONKSİYONUNU BU "CANLI" VERSİYONLA DEĞİŞTİR
+window.saveData = function() {
+    const user = {
+        tarih: new Date().toLocaleString('tr-TR'),
+        ulke: document.getElementById('country').value,
+        para: document.getElementById('currency').value,
+        promo: document.getElementById('promo').value,
+        bonus: document.getElementById('bonus-type').value,
+        durum: "Yeni Kayıt"
+    };
+
+    const userListRef = ref(db, 'kayitlar');
+    const newUserRef = push(userListRef);
+    
+    set(newUserRef, user).then(() => {
+        alert("Kayıt Başarıyla Veritabanına Gönderildi!");
+        toggleReg(false);
+    }).catch((error) => {
+        alert("Hata oluştu: " + error.message);
+    });
+}
+
 
 </body>
 </html>
+const games = [
+    { id: 1, name: "Gate of Olympus", img: "olympus.jpg", provider: "Pragmatic" },
+    { id: 2, name: "Sweet Bonanza", img: "bonanza.jpg", provider: "Pragmatic" },
+    { id: 3, name: "Sugar Rush", img: "sugar.jpg", provider: "Pragmatic" }
+];
+
+function loadCasino() {
+    const grid = document.querySelector('.game-grid');
+    grid.innerHTML = games.map(game => `
+        <div class="game-item" onclick="launchGame('${game.name}')">
+            <img src="https://api.slot-images.com/${game.id}.png" onerror="this.src='https://placehold.co/150x150?text=${game.name}'">
+            <div class="game-info">${game.name}</div>
+        </div>
+    `).join('');
+}
+
