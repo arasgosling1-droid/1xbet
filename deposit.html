@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Yatır | 07 BET</title>
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f2f4f7; margin: 0; padding: 15px; }
+        .method-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+        .method-card:hover { border-color: #2b567e; }
+        .method-card img { width: 50px; margin-right: 15px; }
+        .method-info b { display: block; font-size: 16px; }
+        .method-info span { font-size: 12px; color: #777; }
+        
+        #deposit-form { display: none; background: white; padding: 20px; border-radius: 15px; margin-top: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .send-btn { background: #85b527; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<h3>Ödeme Yöntemi Seçin</h3>
+
+<div class="method-card" onclick="openForm('Papara', '150 - 50.000')">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Papara_Logo.png">
+    <div class="method-info">
+        <b>Papara ile Yatır</b>
+        <span>Limit: 150 - 50.000 TRY</span>
+    </div>
+</div>
+
+<div class="method-card" onclick="openForm('Havale/EFT', '500 - 100.000')">
+    <img src="https://cdn-icons-png.flaticon.com/512/2845/2845811.png">
+    <div class="method-info">
+        <b>Banka Havalesi</b>
+        <span>Limit: 500 - 100.000 TRY</span>
+    </div>
+</div>
+
+<div id="deposit-form">
+    <h4 id="selected-method">Yöntem</h4>
+    <p style="font-size:12px; color:#666;">* Lütfen transferi yaptıktan sonra aşağıdaki formu doldurun.</p>
+    <input type="number" id="amount" placeholder="Yatırılan Miktar (TRY)">
+    <input type="text" id="sender-name" placeholder="Gönderen Ad Soyad">
+    <button class="send-btn" onclick="sendRequest()">ÖDEME BİLDİRİMİ GÖNDER</button>
+</div>
+
+<script type="module">
+    import { db, ref, push, set } from "./firebase-handler.js";
+
+    let currentMethod = "";
+
+    window.openForm = (method, limit) => {
+        currentMethod = method;
+        document.getElementById('selected-method').innerText = method + " Bildirimi";
+        document.getElementById('deposit-form').style.display = 'block';
+        window.scrollTo(0, document.body.scrollHeight);
+    };
+
+    window.sendRequest = async () => {
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        const amount = document.getElementById('amount').value;
+        const name = document.getElementById('sender-name').value;
+
+        if(!user) return alert("Önce giriş yapmalısın!");
+        if(!amount || amount < 150) return alert("Minimum 150 TRY yatırabilirsiniz.");
+
+        const bildirim = {
+            userId: user.userId,
+            userFirebaseKey: user.firebaseKey,
+            miktar: parseFloat(amount),
+            yontem: currentMethod,
+            adSoyad: name,
+            tarih: new Date().toLocaleString('tr-TR'),
+            durum: "Beklemede"
+        };
+
+        try {
+            await push(ref(db, 'odemeBildirimleri'), bildirim);
+            alert("Bildirim gönderildi! Onaylandığında bakiyeniz yüklenecektir.");
+            window.location.href = "index.html";
+        } catch (e) { alert(e.message); }
+    };
+</script>
+</body>
+</html>
