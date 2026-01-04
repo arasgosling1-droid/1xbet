@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>07 BET | Profesyonel Platform</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --main-blue: #2b567e; --bg-gray: #f2f4f7; --success-green: #85b527; --dark-blue: #1b3d5d; }
+        body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg-gray); color: #333; padding-bottom: 70px; }
+        
+        /* Header & Logo */
+        header { background: var(--main-blue); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .logo { font-weight: 900; font-style: italic; font-size: 22px; }
+        .top-btns button { border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .login-btn { background: rgba(255,255,255,0.2); color: white; margin-right: 5px; }
+        .reg-btn { background: var(--success-green); color: white; }
+
+        /* Banner & Slider Alanı */
+        .promo-container { display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: white; }
+        .promo-card { min-width: 140px; height: 180px; background: #ddd; border-radius: 8px; position: relative; overflow: hidden; }
+        .promo-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Kayıt Formu (Görüntüdeki gibi 3'lü seçim) */
+        .reg-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; flex-direction: column; }
+        .reg-header { background: var(--main-blue); color: white; padding: 15px; display: flex; align-items: center; }
+        .reg-tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; }
+        .reg-tab { flex: 1; padding: 15px 5px; text-align: center; font-size: 11px; color: #666; cursor: pointer; }
+        .reg-tab.active { color: var(--main-blue); border-bottom: 3px solid var(--main-blue); font-weight: bold; }
+        
+        .form-body { padding: 20px; flex: 1; overflow-y: auto; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background: #f9f9f9; }
+        .final-btn { background: var(--success-green); color: white; border: none; width: 100%; padding: 15px; border-radius: 4px; font-weight: bold; font-size: 16px; margin-top: 15px; }
+
+        /* Alt Menü (Görüntüdeki gibi) */
+        nav.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; padding: 10px 0; color: #555; text-decoration: none; font-size: 11px; }
+        .nav-item i { display: block; font-size: 20px; margin-bottom: 3px; }
+        .nav-item.active { color: var(--main-blue); border-top: 2px solid var(--main-blue); }
+
+        /* Oyunlar Izgarası */
+        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+        .game-item { aspect-ratio: 1; background: #eee; border-radius: 8px; overflow: hidden; }
+        .game-item img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">1XBET 🎁</div>
+    <div class="top-btns">
+        <button class="login-btn">Oturum Aç</button>
+        <button class="reg-btn" onclick="toggleReg(true)">Kaydol</button>
+    </div>
+</header>
+
+<div class="promo-container">
+    <div class="promo-card"><img src="https://placehold.co/200x300/2b567e/white?text=Yılbaşı+Hediyesi"></div>
+    <div class="promo-card"><img src="https://placehold.co/200x300/85b527/white?text=%200+Bonus"></div>
+    <div class="promo-card"><img src="https://placehold.co/200x300/1b3d5d/white?text=Polar+Express"></div>
+</div>
+
+<div class="game-grid">
+    <div class="game-item"><img src="https://placehold.co/100x100/333/gold?text=Gate+of+Olympus"></div>
+    <div class="game-item"><img src="https://placehold.co/100x100/333/gold?text=Sweet+Bonanza"></div>
+    <div class="game-item"><img src="https://placehold.co/100x100/333/gold?text=Big+Bass"></div>
+</div>
+
+<div class="reg-modal" id="regModal">
+    <div class="reg-header">
+        <span onclick="toggleReg(false)" style="font-size: 24px; margin-right: 15px;">←</span>
+        <span style="font-weight: bold; font-size: 18px;">KAYDOL</span>
+    </div>
+    <div class="reg-tabs">
+        <div class="reg-tab active">Tek tıkla</div>
+        <div class="reg-tab">Telefonla</div>
+        <div class="reg-tab">E-mail ile</div>
+        <div class="reg-tab">Sosyal medya</div>
+    </div>
+    <div class="form-body">
+        <label style="font-size: 12px; color: #888;">Ülke seçiniz</label>
+        <select id="country"><option>Türkiye</option></select>
+        
+        <label style="font-size: 12px; color: #888;">Bir para birimi seçin</label>
+        <select id="currency"><option>TRY (Türk lirası)</option></select>
+        
+        <input type="text" id="promo" placeholder="Promosyon kodu (eğer varsa)">
+        
+        <select id="bonus-type">
+            <option>Sporlar için bonus - 8000TRY %200</option>
+            <option>Casino + 1xGames - 45000TRY %100</option>
+        </select>
+        
+        <button class="final-btn" onclick="saveData()">KAYDOL</button>
+        <p style="font-size: 10px; color: #999; text-align: center;">
+            Bu butona basarak Şirketin Hüküm ve Koşullarını okuyup kabul ettiğinizi onaylamış olursunuz.
+        </p>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="#" class="nav-item active">🏆<br>Spor</a>
+    <a href="#" class="nav-item">🎰<br>Casino</a>
+    <a href="#" class="nav-item">🎫<br>Bahis Kuponu</a>
+    <a href="#" class="nav-item">👤<br>Oturum Aç</a>
+    <a href="#" class="nav-item" onclick="adminAccess()">☰<br>Menü</a>
+</nav>
+
+<script>
+    function toggleReg(show) {
+        document.getElementById('regModal').style.display = show ? 'flex' : 'none';
+    }
+
+    // VERİ KAYDETME (Firebase Bağlantısı Öncesi Yerel Test)
+    function saveData() {
+        const user = {
+            tarih: new Date().toLocaleString('tr-TR'),
+            ulke: document.getElementById('country').value,
+            para: document.getElementById('currency').value,
+            promo: document.getElementById('promo').value,
+            bonus: document.getElementById('bonus-type').value
+        };
+        
+        // Şimdilik LocalStorage'a yazalım, bir sonraki adımda buluta bağlayacağız.
+        let logs = JSON.parse(localStorage.getItem('logs')) || [];
+        logs.push(user);
+        localStorage.setItem('logs', JSON.stringify(logs));
+        
+        alert("Kayıt Alındı! (Admin panelinden kontrol edebilirsiniz)");
+        toggleReg(false);
+    }
+
+    function adminAccess() {
+        let pass = prompt("Yönetici Şifresi:");
+        if(pass === "0707") {
+            // Admin paneline yönlendirme buraya gelecek
+            alert("Admin paneline erişim sağlandı. Veriler yükleniyor...");
+        }
+    }
+</script>
+
+</body>
+</html>
