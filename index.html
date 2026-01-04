@@ -580,5 +580,238 @@ function kuponaEkle(matchName, choice, oran) {
     document.getElementById('kupon-count').innerText = currentKupon.length;
     document.getElementById('total-oran').innerText = toplamOran.toFixed(2);
 }
+// odds-api.js
+
+const API_KEY = '391055381f29a3f06b05c67516181c59'; // Senin için aktif olan key
+const SPORT = 'soccer_uefa_champs_league'; // Şampiyonlar Ligi veya 'soccer_turkey_super_lig'
+
+async function fetchLiveOdds() {
+    try {
+        const response = await fetch(`https://api.the-odds-api.com/v4/sports/${SPORT}/odds/?apiKey=${API_KEY}&regions=eu&markets=h2h`);
+        const data = await response.json();
+        renderMatches(data);
+    } catch (error) {
+        console.error("Maçlar yüklenemedi:", error);
+    }
+}
+
+function renderMatches(matches) {
+    const grid = document.getElementById('matches-grid');
+    grid.innerHTML = ""; // Temizle
+
+    matches.slice(0, 10).forEach(match => {
+        const homeOdds = match.bookmakers[0]?.markets[0].outcomes.find(o => o.name === match.home_team).price || "1.90";
+        const awayOdds = match.bookmakers[0]?.markets[0].outcomes.find(o => o.name === match.away_team).price || "2.10";
+        const drawOdds = match.bookmakers[0]?.markets[0].outcomes.find(o => o.name === 'Draw').price || "3.20";
+
+        grid.innerHTML += `
+            <div class="match-card" style="background:#fff; margin-bottom:10px; border-radius:8px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                <div style="font-size:12px; color:#666; margin-bottom:5px;">⚽ ${match.sport_title}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-weight:bold;">
+                    <span>${match.home_team}</span>
+                    <span style="color:#2b567e;">vs</span>
+                    <span>${match.away_team}</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button onclick="addToSlip('${match.home_team}', '1', ${homeOdds})" class="odd-btn">1 <br> <b>${homeOdds}</b></button>
+                    <button onclick="addToSlip('Beraberlik', 'X', ${drawOdds})" class="odd-btn">X <br> <b>${drawOdds}</b></button>
+                    <button onclick="addToSlip('${match.away_team}', '2', ${awayOdds})" class="odd-btn">2 <br> <b>${awayOdds}</b></button>
+                </div>
+            </div>
+        `;
+    });
+}
+let mySlip = [];
+
+window.addToSlip = (team, pick, price) => {
+    // Aynı maçtan sadece bir seçenek eklenebilir kontrolü (Basit mantık)
+    const exists = mySlip.find(s => s.team === team);
+    if (exists) return alert("Bu maç zaten kuponda!");
+
+    mySlip.push({ team, pick, price });
+    updateSlipUI();
+    
+    // Kuponu sağ altta göster (Görsellerdeki 1xbet tarzı)
+    document.getElementById('slip-count').innerText = mySlip.length;
+};
+
+function updateSlipUI() {
+    let totalRate = mySlip.reduce((acc, item) => acc * item.price, 1).toFixed(2);
+    document.getElementById('total-rate').innerText = totalRate;
+}
+.odd-btn {
+    flex: 1;
+    background: #f2f4f7;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.odd-btn:hover {
+    background: #2b567e;
+    color: white;
+}
+.odd-btn b {
+    color: #85b527; /* Yeşil oran rengi */
+}
+import { db, ref, push, set, get } from "./firebase-handler.js";
+
+async function playBet() {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    const stake = parseFloat(document.getElementById('bet-amount').value); // Yatırılan tutar
+    
+    if (!user) return alert("Lütfen önce giriş yapın!");
+    if (mySlip.length === 0) return alert("Kuponunuz boş!");
+    if (!stake || stake <= 0) return alert("Lütfen geçerli bir tutar girin!");
+
+    // 1. Güncel Bakiyeyi Kontrol Et
+    const userRef = ref(db, `kayitlar/${user.firebaseKey}`);
+    const snapshot = await get(userRef);
+    const userData = snapshot.val();
+
+    if (userData.balance < stake) {
+        return alert("Bakiyeniz yetersiz! Lütfen para yatırın.");
+    }
+
+    // 2. Kupon Verisini Hazırla
+    const totalRate = mySlip.reduce((acc, item) => acc * item.price, 1).toFixed(2);
+    const potentialWin = (stake * totalRate).toFixed(2);
+
+    const kuponData = {
+        userId: user.userId,
+        maclar: mySlip,
+        yatirilan: stake,
+        oran: totalRate,
+        kazanc: potentialWin,
+        tarih: new Date().toLocaleString('tr-TR'),
+        durum: "Beklemede" // Admin "Kazandı" veya "Kaybetti" yapacak
+    };
+
+    try {
+        // 3. Bakiyeyi Düşür
+        const newBalance = userData.balance - stake;
+        await set(ref(db, `kayitlar/${user.firebaseKey}/balance`), newBalance);
+
+        // 4. Kuponu Firebase'e Gönder
+        const kuponRef = ref(db, 'aktifKuponlar');
+        await push(kuponRef, kuponData);
+
+        alert(`Bahis Alındı! \nPotansiyel Kazanç: ${potentialWin} TRY`);
+        mySlip = []; // Kuponu temizle
+        updateSlipUI(); 
+    } catch (error) {
+        alert("Hata oluştu: " + error.message);
+    }
+}
+// Admin panelinde bir butona bağlayacağın fonksiyon
+async function sonuclandir(kuponKey, userId, miktar, sonuc) {
+    if (sonuc === "KAZANDI") {
+        // Kullanıcının mevcut bakiyesini al ve kazancı ekle
+        const userRef = ref(db, `kayitlar/${userId}/balance`);
+        const snapshot = await get(userRef);
+        const currentBal = snapshot.val();
+        
+        await set(userRef, currentBal + parseFloat(miktar));
+        alert("Kupon kazandı olarak işaretlendi ve ödeme yapıldı!");
+    }
+    
+    // Kuponu arşivle veya durumunu güncelle
+    await set(ref(db, `aktifKuponlar/${kuponKey}/durum`), sonuc);
+}
+// Maçları listelediğin döngüye şunu ekle:
+grid.innerHTML += `
+    <div class="match-card">
+        <div class="tv-icon" onclick="openLiveStream()">📺 CANLI İZLE</div>
+        </div>
+`;
+
+function openLiveStream() {
+    alert("Canlı yayın birazdan başlayacak... Lütfen bekleyiniz.");
+    // Buraya rastgele bir maç yayını iframe'i koyabilirsin.
+}
+<div class="profile-header" style="background: #2b567e; padding: 30px 20px; text-align: center; color: white;">
+    <div class="user-avatar" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px;">
+        👤
+    </div>
+    <h3 id="prof-user-id">ID: Yükleniyor...</h3>
+    <div class="prof-balance" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 20px; display: inline-block; margin-top: 10px;">
+        <span style="color: #85b527; font-weight: bold; font-size: 18px;" id="prof-balance">0.00 TRY</span>
+    </div>
+</div>
+
+<div class="profile-menu" style="background: white; margin-top: -10px; border-radius: 15px 15px 0 0; padding: 20px;">
+    <div class="menu-item" onclick="showHistory('kuponlar')" style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee;">
+        <span>🎫 Bahis Geçmişim</span>
+        <span>❯</span>
+    </div>
+    <div class="menu-item" onclick="showHistory('yatirimlar')" style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee;">
+        <span>💰 Para Yatırma Taleplerim</span>
+        <span>❯</span>
+    </div>
+    <div class="menu-item" onclick="window.location.href='deposit.html'" style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee; color: #85b527; font-weight: bold;">
+        <span>➕ Para Yatır</span>
+        <span>❯</span>
+    </div>
+    <div class="menu-item" onclick="logout()" style="display: flex; justify-content: space-between; padding: 15px 0; color: #e74c3c;">
+        <span>🚪 Güvenli Çıkış</span>
+        <span>❯</span>
+    </div>
+</div>
+
+<div id="history-container" style="padding: 20px;"></div>
+import { db, ref, onValue } from "./firebase-handler.js";
+
+const user = JSON.parse(localStorage.getItem('currentUser'));
+
+if (user) {
+    // 1. Üst Bilgileri Doldur
+    document.getElementById('prof-user-id').innerText = "ID: " + user.userId;
+    
+    // 2. Bakiyeyi Anlık Dinle
+    onValue(ref(db, `kayitlar/${user.firebaseKey}/balance`), (snapshot) => {
+        document.getElementById('prof-balance').innerText = snapshot.val().toLocaleString() + " TRY";
+    });
+}
+
+// 3. Bahis Geçmişini Listele
+window.showHistory = (type) => {
+    const container = document.getElementById('history-container');
+    container.innerHTML = "Yükleniyor...";
+    
+    const path = type === 'kuponlar' ? 'aktifKuponlar' : 'odemeBildirimleri';
+    
+    onValue(ref(db, path), (snapshot) => {
+        const data = snapshot.val();
+        container.innerHTML = `<h4>${type === 'kuponlar' ? 'Bahisleriniz' : 'Yatırımlarınız'}</h4>`;
+        
+        if (data) {
+            Object.values(data).filter(item => item.userId === user.userId).reverse().forEach(item => {
+                const statusColor = item.durum === 'Onaylandı' || item.durum === 'Kazandı' ? '#85b527' : '#f39c12';
+                
+                container.innerHTML += `
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid ${statusColor}; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <div style="display:flex; justify-content:space-between; font-size:12px; color:#888;">
+                            <span>${item.tarih}</span>
+                            <span style="color:${statusColor}; font-weight:bold;">${item.durum}</span>
+                        </div>
+                        <div style="margin-top:5px; font-weight:bold;">
+                            ${type === 'kuponlar' ? item.oran + ' Oran | ' + item.yatirilan + ' TRY' : item.yontem + ' | ' + item.miktar + ' TRY'}
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            container.innerHTML += "<p>Kayıt bulunamadı.</p>";
+        }
+    }, { onlyOnce: true });
+};
+window.logout = () => {
+    if(confirm("Çıkış yapmak istediğinize emin misiniz?")) {
+        localStorage.removeItem('currentUser');
+        window.location.href = "index.html";
+    }
+}
 
 
